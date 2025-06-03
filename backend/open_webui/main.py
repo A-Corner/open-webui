@@ -76,6 +76,7 @@ from open_webui.routers import (
     tools,
     users,
     utils,
+    external_rag as external_rag_router, # Added import
 )
 
 from open_webui.routers.retrieval import (
@@ -970,6 +971,7 @@ app.include_router(
     evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
+app.include_router(external_rag_router.router, prefix="/api/v1/external_rag_services", tags=["external_rag"]) # Added router
 
 
 try:

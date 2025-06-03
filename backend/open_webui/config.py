@@ -30,6 +30,7 @@ from open_webui.env import (
     log,
 )
 from open_webui.internal.db import Base, get_db
+from open_webui.models.rag_services import RagService
 from open_webui.utils.redis import get_redis_connection
 
 
@@ -2690,6 +2691,30 @@ LDAP_CA_CERT_FILE = PersistentConfig(
     os.environ.get("LDAP_CA_CERT_FILE", ""),
 )
 
+EXTERNAL_RAG_CONNECTIONS = PersistentConfig(
+    "EXTERNAL_RAG_CONNECTIONS",
+    "external_rag.connections",
+    [],
+)
+
 LDAP_CIPHERS = PersistentConfig(
     "LDAP_CIPHERS", "ldap.server.ciphers", os.environ.get("LDAP_CIPHERS", "ALL")
 )
+
+
+def load_external_rag_connections_from_db():
+    with get_db() as db:
+        rag_services = db.query(RagService).all()
+        connections = []
+        for service in rag_services:
+            connections.append({
+                "id": service.id,
+                "name": service.name,
+                "url": service.url,
+                "api_key": service.api_key,
+            })
+        return connections
+
+# It might be useful to load the connections when the application starts
+# For now, this function can be called explicitly when needed.
+# EXTERNAL_RAG_CONNECTIONS.value = load_external_rag_connections_from_db()
