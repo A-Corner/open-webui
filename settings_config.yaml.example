@@ -1,0 +1,208 @@
+# Open WebUI Settings Configuration
+# ---------------------------------
+# Copy this file to 'settings_config.yaml' in the project root or inside your DATA_DIR,
+# then modify it to your needs.
+#
+# Precedence:
+# 1. Settings from this YAML file (if found and valid).
+# 2. Environment variables (for many settings, especially those managed by PersistentConfig or directly read by os.environ).
+# 3. Hardcoded default values in the application code.
+#
+# For Uvicorn startup parameters (host, port, workers) in start.sh/dev.sh:
+# The scripts will prefer environment variables (HOST, PORT, WEBUI_WORKERS or DEV_HOST, etc.)
+# if they are set, then values from this YAML file (if yq is available), then script defaults.
+
+service:
+  host: "0.0.0.0"  # Host address for the WebUI service to listen on.
+  port: 8080      # Port for the WebUI service.
+  workers: 1      # Number of Uvicorn worker processes. Recommended: 1 for --reload in dev, adjust based on CPU cores for production.
+  # base_url: ""    # Optional: If running Open WebUI behind a reverse proxy under a subpath (e.g., http://yourdomain.com/webui).
+                  # This helps generate correct absolute URLs. Example: "/webui".
+  data_dir: "./data" # Main directory for storing application data (database, uploads, vector stores, etc.).
+                   # Can be an absolute path (e.g., /opt/open-webui/data) or relative to the project root.
+                   # The default "./data" means a 'data' folder in the same directory as this settings file if it's in root,
+                   # or relative to where the application is run if settings file is not found.
+                   # It's strongly recommended to use an absolute path for production or ensure it resolves as expected.
+  secret_key: "YOUR_STRONG_SECRET_KEY_HERE_CHANGE_ME_AND_KEEP_IT_SAFE" # IMPORTANT: Change this to a strong, random string!
+                                                                    # Used for session security, JWT signing, etc.
+                                                                    # Example: Use `openssl rand -hex 32` to generate one.
+  log_level: "INFO" # Logging level for the application. Options: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL".
+  offline_mode: false # Global offline mode. If true, attempts to prevent all external network calls
+                      # (e.g., for Hugging Face model downloads, update checks).
+  trust_remote_code: false # Whether to trust remote code when loading models from Hugging Face.
+                           # Set to true only if you trust the source of your models.
+
+database:
+  # SQLAlchemy database connection URL.
+  # Default is SQLite, which will create a file in `service.data_dir` / `db`.
+  # Ensure `service.data_dir` is writable by the Open WebUI process.
+  # Examples:
+  #   SQLite (default): "sqlite:///./data/webui.db" (Path will be relative to where data_dir is resolved)
+  #   PostgreSQL: "postgresql://user:password@host:port/dbname"
+  #   MySQL: "mysql+mysqlconnector://user:password@host:port/dbname"
+  url: "sqlite:///./data/webui.db" # If using SQLite with a relative path, it's relative to `service.data_dir`.
+
+auth:
+  enable_auth: true       # Master switch for user authentication. If false, Open WebUI is open to all users without login.
+  enable_signup: true     # Allow new users to register. Only effective if enable_auth is true.
+  default_user_role: "user" # Default role for newly registered users. Options: "admin", "user", "pending".
+                           # "pending" means an admin must approve the user.
+  jwt_expires_in_minutes: -1 # JWT (session token) expiration in minutes. Use -1 for no expiration (session lasts as long as browser is open or until server restart).
+                            # Example: 1440 for 1 day.
+
+  # OAuth Configuration (Optional)
+  # For detailed setup of providers (Google, Microsoft, GitHub, generic OIDC),
+  # please refer to environment variables or the Admin Panel settings after initial setup.
+  # This YAML section primarily enables/disables OAuth features.
+  oauth:
+    enabled: false           # Master switch to enable or disable all OAuth providers.
+    enable_signup: false     # Allow new user registration via OAuth if OAuth itself is enabled.
+    # Example of how you might specify provider details if YAML were to fully manage them (currently mostly via ENV/UI):
+    # providers:
+    #   google:
+    #     enabled: false
+    #     client_id: "<YOUR_GOOGLE_CLIENT_ID>"
+    #     client_secret: "<YOUR_GOOGLE_CLIENT_SECRET>"
+    #     redirect_uri: "" # Usually auto-calculated or needs to be set in Google Cloud Console.
+    #   oidc: # Generic OpenID Connect
+    #     enabled: false
+    #     client_id: ""
+    #     client_secret: ""
+    #     provider_url: "" # e.g., https://your-auth-server.com/.well-known/openid-configuration
+    #     redirect_uri: ""
+    #     provider_name: "MySSO"
+
+  # LDAP Configuration (Optional)
+  # For detailed LDAP setup, refer to environment variables or the Admin Panel settings.
+  ldap:
+    enabled: false
+    # server_label: "Company LDAP"
+    # host: "ldap.example.com"
+    # port: 389 # or 636 for LDAPS
+    # use_tls: false
+    # app_dn: "cn=admin,dc=example,dc=com"
+    # app_dn_password: "<LDAP_BIND_PASSWORD>"
+    # search_base: "ou=users,dc=example,dc=com"
+    # attribute_for_username: "uid" # e.g., uid, sAMAccountName, userPrincipalName
+    # attribute_for_mail: "mail"
+    # search_filters: "" # e.g., "(objectClass=inetOrgPerson)"
+    # certificate_path: "" # Path to CA certificate if using TLS with a custom CA
+    # ciphers: "" # Specify TLS ciphers if needed
+
+frontend_branding: # Settings for customizing the UI appearance (supersedes the old branding_config.json)
+  app_name: "Open WebUI"    # Name displayed within the application UI (e.g., headers, sidebar).
+  app_title: "Open WebUI"   # Title displayed in the browser tab or window title bar.
+  logo_path: "/static/logo.png"       # Path to the main logo image. Can be a local path (relative to static folder) or a full URL.
+  favicon_path: "/static/favicon.png"  # Path to the favicon.
+  splash_path: "/static/splash.png"   # Path to the splash screen image shown on initial load.
+  login_slogan: "Welcome to your personalized WebUI experience!" # Slogan displayed on the login page.
+  footer_text: "Powered by Open WebUI" # Text displayed in the application footer.
+  enable_update_check: true       # If true, Open WebUI will check for new versions and notify admins.
+
+  custom_links: # List of custom links to display (e.g., in footer or help menu).
+    # - text: "About My Company"
+    #   url: "https://mycompany.com/about"
+    # - text: "Internal Docs"
+    #   url: "/docs/internal"
+
+  meta_tags: # Custom HTML meta tags for SEO or information.
+    description: "Open WebUI is a user-friendly, extensible interface for your favorite AI models."
+    keywords: "webui, llm, ai, chat, interface, open source"
+
+  ui_theme: # Basic UI theme overrides. For more advanced theming, custom CSS might be needed.
+    primary_color: ""  # Example: "#3498db" (a shade of blue). Leave empty for default.
+    secondary_color: "" # Example: "#2ecc71" (a shade of green). Leave empty for default.
+    font_family: ""    # Example: "Inter, sans-serif". Leave empty for default system fonts.
+
+  announcement_banner: # Display a banner at the top of the UI.
+    enabled: false
+    type: "info"  # "info", "warning", "success", "error"
+    content: "Welcome to the new version! Check out the latest features."
+    dismissible: true # Whether the user can dismiss the banner.
+
+llm_services:
+  ollama:
+    enabled: true # Enable or disable Ollama integration.
+    base_url: "http://localhost:11434" # Primary Ollama API URL.
+    # extra_base_urls: [] # Optional: List of additional Ollama API URLs for load balancing or multiple instances.
+                          # Example: ["http://ollama-gpu1:11434", "http://ollama-gpu2:11434"]
+
+  openai_compatible: # For generic OpenAI-compatible APIs (e.g., LiteLLM, FastChat, local LLMs with OpenAI endpoint)
+    enabled: false # Enable or disable integration with OpenAI-compatible APIs.
+    # api_base_urls: # List of base URLs for your OpenAI-compatible APIs.
+    #   - "http://localhost:8000/v1"
+    # api_keys: # Corresponding API keys for each base URL. Ensure to protect these. Use "" if no key is needed.
+    #   - "<YOUR_COMPATIBLE_API_KEY_HERE>"
+
+  default_models: # Default models to be available or pre-selected for users.
+                  # Format: "runner/model_id" (e.g., "ollama/llama3", "openai_compatible/my-custom-model")
+                  # If empty, the system will attempt to discover available models from connected services.
+    # - "ollama/llama3"
+    # - "ollama/mistral"
+
+rag: # Retrieval Augmented Generation settings
+  embedding_engine: "sentence-transformers" # Engine for generating embeddings.
+                                          # Options: "sentence-transformers", "ollama", "openai".
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2" # Name or path of the embedding model.
+                                                            # For Ollama: e.g., "nomic-embed-text" (ensure it's pulled in your Ollama instance).
+                                                            # For OpenAI: e.g., "text-embedding-ada-002".
+  # ollama_embedding_model_api_key: "" # Optional API key if your Ollama instance requires it specifically for embeddings.
+  # openai_embedding_api_base_url: "" # Optional: Use a specific OpenAI endpoint for embeddings. Defaults to general OpenAI config if not set.
+  # openai_embedding_api_key: ""    # Optional: API key for OpenAI embeddings. Defaults to general OpenAI key. (Sensitive)
+  embedding_batch_size: 16        # Batch size for processing embeddings. Adjust based on your hardware.
+
+  reranking_model: "" # Optional: Name or path of a reranking model (e.g., "jinaai/jina-colbert-v2"). Leave empty to disable.
+
+  vector_db_type: "chroma" # Type of vector database to use.
+                           # Options: "chroma", "qdrant", "milvus", "elasticsearch", "opensearch", "pgvector".
+  # Chroma specific settings (if vector_db_type is "chroma")
+  chroma_data_path: "./data/vector_db/chroma" # Path for ChromaDB data (relative to service.data_dir).
+
+  # Qdrant specific settings (if vector_db_type is "qdrant")
+  # qdrant_url: "http://localhost:6333" # URL of your Qdrant instance.
+  # qdrant_api_key: ""                  # Optional API key for Qdrant. (Sensitive)
+  # qdrant_collection_name_prefix: "open_webui_" # Optional prefix for collection names.
+
+  # Milvus, Elasticsearch, OpenSearch, Pgvector settings would follow here if needed.
+
+  text_processing:
+    chunk_size: 1000
+    chunk_overlap: 100
+    pdf_extract_images: false # Experimental: Attempt to extract images from PDFs during document processing.
+
+  web_search: # Configuration for using web search in RAG
+    enabled: false
+    engine: "duckduckgo" # Default search engine if none is specified by user or if a specific one is enforced.
+                         # Examples: "duckduckgo", "searxng", "google_pse", "brave_search", "serpapi", etc.
+    result_count: 3      # Number of search results to fetch and process for RAG context.
+    # searxng_query_url: "http://localhost:8888" # Required if using "searxng" engine.
+    # google_pse_api_key: "<YOUR_GOOGLE_PSE_API_KEY>" # Required for "google_pse". (Sensitive)
+    # google_pse_engine_id: "<YOUR_GOOGLE_PSE_ENGINE_ID>" # Required for "google_pse".
+    # Other engine-specific API keys or URLs would go here.
+
+  # Default RAG Prompt Template. Can be overridden by users or models.
+  # This is a multiline string. Ensure proper YAML formatting for multiline strings.
+  # default_template: |
+  #   ### Task:
+  #   Respond to the user query using the provided context.
+  #   Use an unbiased and journalistic tone. \
+  #   Combine search results with context to answer the query. \
+  #   Try to cite context using [number] notation (e.g., [1], [2]). \
+  #   If the context does not contain the answer, state that it does not. \
+  #   Avoid mentioning that you are an AI Language Model. \
+  #   Answer the question directly.
+  #   User query: {{QUERY}}
+  #   Context:
+  #   {{CONTEXT}}
+
+huggingface:
+  cache_dir: "~/.cache/huggingface/hub" # Path to Hugging Face Hub cache directory. Use "~" for user's home directory.
+                                        # This sets HF_HOME environment variable.
+  token: ""                             # Optional: Your Hugging Face API token for accessing private models or higher rate limits. (Sensitive)
+  offline_mode: false                   # If true, sets HF_HUB_OFFLINE=1 to prevent Hugging Face libraries from attempting network calls.
+
+# static_serving: # Optional: Override default static file serving paths for advanced deployments.
+  # static_dir_override: "" # Path to general static files (e.g., custom images, css) if overriding the default.
+                          # Default is usually OPEN_WEBUI_DIR/static.
+  # frontend_build_dir_override: "" # Path to custom frontend build artifacts if you're hosting them separately
+                                  # or have a custom build process. Default is OPEN_WEBUI_DIR/build.

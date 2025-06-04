@@ -32,7 +32,98 @@ from open_webui.env import (
 from open_webui.internal.db import Base, get_db
 from open_webui.models.rag_services import RagService
 from open_webui.utils.redis import get_redis_connection
-from open_webui.core.branding import APP_BRANDING_CONFIG # Import the branding config
+# APP_BRANDING_CONFIG will now be initialized in this file after SYSTEM_SETTINGS is loaded.
+# from open_webui.core.branding import APP_BRANDING_CONFIG
+from open_webui.core.settings_loader import load_settings_config
+from open_webui.core.branding import load_branding_config_from_settings, DEFAULT_BRANDING_CONFIG as CORE_DEFAULT_BRANDING_CONFIG
+
+from open_webui.core.settings_loader import DEFAULT_SETTINGS as SETTINGS_LOADER_DEFAULTS
+from open_webui.env import generate_key as generate_default_secret_key
+
+# Load system settings from YAML once at startup
+SYSTEM_SETTINGS = load_settings_config()
+
+# Initialize APP_BRANDING_CONFIG using SYSTEM_SETTINGS
+APP_BRANDING_CONFIG = load_branding_config_from_settings(SYSTEM_SETTINGS.get('frontend_branding', {}))
+
+
+# Apply critical configurations from SYSTEM_SETTINGS to os.environ early,
+# so that libraries or parts of the code that read directly from os.environ
+# can pick them up. This is especially for settings not managed by PersistentConfig
+# or needed before PersistentConfig instances are created.
+
+# Hugging Face configurations
+hf_settings = SYSTEM_SETTINGS.get("huggingface", {})
+if hf_settings.get("cache_dir"):
+    hf_cache_dir = os.path.expanduser(hf_settings["cache_dir"])
+    os.environ['HF_HUB_CACHE'] = hf_cache_dir
+    os.environ['SENTENCE_TRANSFORMERS_HOME'] = hf_cache_dir # Often good to align these
+    log.info(f"HF_HUB_CACHE set to: {hf_cache_dir}")
+if hf_settings.get("offline_mode") is True: # Check specifically for True
+    os.environ['HF_HUB_OFFLINE'] = "1"
+    log.info("HF_HUB_OFFLINE set to: 1")
+if hf_settings.get("token"):
+    os.environ['HF_TOKEN'] = hf_settings["token"]
+    log.info("HF_TOKEN environment variable set from settings.")
+
+# Service configurations like SECRET_KEY (if not already set by .env file which has higher precedence for os.environ)
+# Generally, os.environ is populated by .env files or system env vars first.
+# If a key is ALREADY in os.environ, we might not want to override it from YAML,
+# or YAML should take precedence. Current SYSTEM_SETTINGS loader prioritizes YAML over code defaults,
+# but env vars (read by os.environ.get in PersistentConfig) can override SYSTEM_SETTINGS's defaults.
+# For vars read *directly* from os.environ (not via PersistentConfig), we might need to set them here.
+
+# WEBUI_SECRET_KEY: env.py reads os.environ.get('WEBUI_SECRET_KEY', generate_key()).
+# If settings_config.yaml should override env var for this, we'd set it here.
+# Let's assume env var or .env takes precedence for WEBUI_SECRET_KEY for now.
+# However, if it's default and YAML has a non-default, YAML should win.
+# The SECRET_KEY in SYSTEM_SETTINGS["service"]["secret_key"] is resolved.
+# If it's not the placeholder AND not already set strongly by env:
+yaml_secret_key = SYSTEM_SETTINGS.get("service", {}).get("secret_key")
+if yaml_secret_key and yaml_secret_key != SETTINGS_LOADER_DEFAULTS["service"]["secret_key"]:
+    # Only override if not set by a .env file or system env var,
+    # OR if the current env var is the auto-generated one.
+    # os.environ.get() would be better here than direct access if we want to respect .env loaded values.
+    # However, env.WEBUI_SECRET_KEY is what the app uses, and it's already populated from os.environ or generated.
+    current_secret_key_in_env_module = app_env.WEBUI_SECRET_KEY # app_env imported below for LOG_LEVEL
+
+    if current_secret_key_in_env_module == generate_default_secret_key() or \
+       current_secret_key_in_env_module == SETTINGS_LOADER_DEFAULTS["service"]["secret_key"]: # Check against actual generated or known placeholder
+        app_env.WEBUI_SECRET_KEY = yaml_secret_key # Directly update the variable in env module
+        os.environ['WEBUI_SECRET_KEY'] = yaml_secret_key # Also set it for other potential direct os.environ users
+        log.info("WEBUI_SECRET_KEY in env module updated from settings_config.yaml.")
+    elif 'WEBUI_SECRET_KEY' not in os.environ : # If it was never in os.environ (meaning generate_default_secret_key() was used by env.py)
+        app_env.WEBUI_SECRET_KEY = yaml_secret_key
+        os.environ['WEBUI_SECRET_KEY'] = yaml_secret_key
+        log.info("WEBUI_SECRET_KEY set from settings_config.yaml as it was not in environment and not auto-generated default.")
+
+
+# LOG_LEVEL: env.py reads os.environ.get('LOG_LEVEL', "INFO").
+# We need to update env.GLOBAL_LOG_LEVEL which is used by logging.basicConfig in main.py
+yaml_log_level = SYSTEM_SETTINGS.get("service", {}).get("log_level")
+if yaml_log_level and yaml_log_level != DEFAULT_SETTINGS["service"]["log_level"]:
+    # Check if LOG_LEVEL env var is set. If so, it might take precedence.
+    # For now, let YAML override code default, env var (via PersistentConfig init) can override YAML.
+    # This specific one (GLOBAL_LOG_LEVEL) is tricky because it's used by main.py's basicConfig.
+    # The most robust way is to have main.py's logging setup consult SYSTEM_SETTINGS.
+    # For now, let's update the env var so env.py picks it up if LOG_LEVEL env var isn't already set.
+    if 'LOG_LEVEL' not in os.environ:
+        os.environ['LOG_LEVEL'] = yaml_log_level
+        log.info(f"LOG_LEVEL set to '{yaml_log_level}' from settings_config.yaml for env.py.")
+        # Update env.GLOBAL_LOG_LEVEL if it's already imported and used
+        from open_webui import env as app_env # Re-import or access directly
+        app_env.GLOBAL_LOG_LEVEL = yaml_log_level.upper()
+        # Also update loggers that might have been initialized
+        logging.getLogger().setLevel(app_env.GLOBAL_LOG_LEVEL)
+        log.info(f"Root logger level updated to: {app_env.GLOBAL_LOG_LEVEL}")
+
+
+# Now, other configurations below can potentially use values from SYSTEM_SETTINGS
+# For example, DATA_DIR could be sourced from SYSTEM_SETTINGS["service"]["data_dir"]
+# if we want YAML to be the absolute source of truth, overriding even env vars for some core paths.
+# However, open_webui.env.DATA_DIR is already initialized from os.getenv("DATA_DIR", DEFAULT_DATA_DIR).
+# For now, SYSTEM_SETTINGS is available. How it overrides existing env-based config needs careful consideration
+# on a per-variable basis. Let's assume for now that new PersistentConfig instances will try to read from it.
 
 
 class EndpointFilter(logging.Filter):
@@ -46,6 +137,74 @@ logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 ####################################
 # Config helpers
 ####################################
+
+# Example: Potentially update DATA_DIR if defined in SYSTEM_SETTINGS and different from env.
+# This shows how SYSTEM_SETTINGS could influence other already defined variables.
+# This needs to be done carefully to avoid circular dependencies if settings_loader itself uses DATA_DIR.
+# The current settings_loader.py uses DATA_DIR from open_webui.env for one of its search paths.
+# A safer approach is: settings_loader determines config file path without DATA_DIR first (e.g. root),
+# then loads DATA_DIR from YAML, then other paths in YAML can be relative to this loaded DATA_DIR.
+# For now, we assume DATA_DIR from .env is primary for locating settings_config.yaml if not in root,
+# and settings_config.yaml's service.data_dir is the application's functional data directory.
+
+# Let's make sure that critical variables like DATA_DIR used by other parts of config.py
+# are updated if SYSTEM_SETTINGS defines them.
+# This requires careful ordering. DATA_DIR from open_webui.env is used by settings_loader.
+# The `service.data_dir` in SYSTEM_SETTINGS is resolved to an absolute path.
+# We can update the module-level DATA_DIR from open_webui.env if needed, but that's tricky.
+# Better: Modules that need data_dir should import it from SYSTEM_SETTINGS after this point,
+# or we update specific PersistentConfig instances that depend on it.
+
+# For PersistentConfig, its __init__ method will be updated to check SYSTEM_SETTINGS
+# for initial default values before falling back to environment variables or hardcoded defaults.
+
+# Update env.DATA_DIR if overridden by SYSTEM_SETTINGS. This affects subsequent uses of DATA_DIR.
+# Need to import and modify it directly in the env module.
+from open_webui import env
+if SYSTEM_SETTINGS.get("service", {}).get("data_dir") and \
+   os.path.abspath(env.DATA_DIR) != os.path.abspath(SYSTEM_SETTINGS["service"]["data_dir"]):
+    log.info(f"Overriding DATA_DIR from env ('{env.DATA_DIR}') with value from settings_config.yaml ('{SYSTEM_SETTINGS['service']['data_dir']}')")
+    env.DATA_DIR = Path(SYSTEM_SETTINGS["service"]["data_dir"])
+    # Ensure other paths in env that depend on DATA_DIR are also updated if they were computed already.
+    # For example, env.CHROMA_DATA_PATH, env.UPLOAD_DIR, env.CACHE_DIR if they were set using old DATA_DIR.
+    # This requires env.py to have a function to re-initialize such paths, or do it here.
+    # For now, let's assume new PersistentConfig instances will correctly use the updated DATA_DIR
+    # when their defaults are constructed (e.g. for CHROMA_DATA_PATH).
+    # The key is that DEFAULT_SETTINGS in settings_loader.py uses os.path.join(DATA_DIR, ...)
+    # If DATA_DIR (from env) is updated here, then subsequent calls to generate paths for defaults
+    # in PersistentConfig that *don't* find values in SYSTEM_SETTINGS or os.environ might be affected.
+    # This needs careful thought.
+    # A simpler model: SYSTEM_SETTINGS is the source of truth for defaults.
+    # PersistentConfig reads from it. If a path like CHROMA_DATA_PATH is defined in SYSTEM_SETTINGS,
+    # it's used. If not, PersistentConfig's code_default_value (which might be based on env.DATA_DIR) is used.
+    # The current PersistentConfig change already prioritizes SYSTEM_SETTINGS.
+    # The main risk is if `code_default_value` for a path-based config is created *before*
+    # `env.DATA_DIR` could be updated by this block.
+
+    # Let's simplify: PersistentConfig will use SYSTEM_SETTINGS first.
+    # If a path like "rag.vector_db.chroma_path" is in SYSTEM_SETTINGS, that value is used.
+    # If not, the env var is checked. If not, code_default for CHROMA_DATA_PATH
+    # (e.g. `DATA_DIR / "vector_db" / "chroma"`) is used. This `DATA_DIR` is from `open_webui.env`.
+    # So, if `settings_config.yaml` defines `service.data_dir`, then `CHROMA_DATA_PATH` default
+    # should ideally be relative to that if not explicitly set in YAML.
+    # The DEFAULT_SETTINGS in settings_loader already makes chroma_path relative to the *original* DATA_DIR.
+    # This is getting complicated. The cleanest is:
+    # 1. Load SYSTEM_SETTINGS. `service.data_dir` is resolved to absolute.
+    # 2. Update `open_webui.env.DATA_DIR` with this value.
+    # 3. All `PersistentConfig` instances, when constructed, will use this (potentially updated) `env.DATA_DIR`
+    #    if their `code_default_value` is path-based and derived from `env.DATA_DIR`.
+    # This seems like the most consistent way.
+    # The `Path` object in `env.py` needs to be updated.
+    env.DATA_DIR = Path(SYSTEM_SETTINGS["service"]["data_dir"]).resolve()
+    # Re-initialize other paths in env.py that depend on DATA_DIR
+    env.UPLOAD_DIR = env.DATA_DIR / "uploads"
+    env.CACHE_DIR = env.DATA_DIR / "cache"
+    # CHROMA_DATA_PATH is not directly in env.py but used as a default for PersistentConfig.
+    # Its default in code should use the (potentially updated) env.DATA_DIR.
+    log.info(f"env.DATA_DIR is now {env.DATA_DIR}")
+    log.info(f"env.UPLOAD_DIR is now {env.UPLOAD_DIR}")
+    log.info(f"env.CACHE_DIR is now {env.CACHE_DIR}")
+
 
 
 # Function to run the alembic migrations
@@ -209,16 +368,53 @@ ENABLE_PERSISTENT_CONFIG = (
 
 
 class PersistentConfig(Generic[T]):
-    def __init__(self, env_name: str, config_path: str, env_value: T):
+    def __init__(self, env_name: str, config_path: str, code_default_value: T):
         self.env_name = env_name
         self.config_path = config_path
-        self.env_value = env_value
-        self.config_value = get_config_value(config_path)
+
+        # Determine initial value: SYSTEM_SETTINGS > os.environ > code_default_value
+        path_parts = config_path.split('.')
+        system_setting_value = SYSTEM_SETTINGS
+        for part in path_parts:
+            if isinstance(system_setting_value, dict) and part in system_setting_value:
+                system_setting_value = system_setting_value[part]
+            else:
+                system_setting_value = None
+                break
+
+        if system_setting_value is not None:
+            # Type cast system_setting_value to the type of code_default_value
+            # This is important because YAML values might be loaded as generic types
+            try:
+                if type(code_default_value) == bool and not isinstance(system_setting_value, bool):
+                    effective_default = str(system_setting_value).lower() in ["true", "1", "yes", "on"]
+                elif type(code_default_value) == int and not isinstance(system_setting_value, int):
+                    effective_default = int(system_setting_value)
+                elif type(code_default_value) == float and not isinstance(system_setting_value, float):
+                    effective_default = float(system_setting_value)
+                elif type(code_default_value) == list and not isinstance(system_setting_value, list):
+                     # Attempt to parse if string, e.g. comma-separated for simple lists
+                    if isinstance(system_setting_value, str):
+                        effective_default = [s.strip() for s in system_setting_value.split(',')]
+                    else: # Keep as is, or raise error if stricter parsing needed
+                        effective_default = system_setting_value
+                else: # Covers str, dict, and cases where types already match
+                    effective_default = system_setting_value
+            except ValueError:
+                log.warning(f"Could not cast SYSTEM_SETTINGS value for '{config_path}' ('{system_setting_value}') to type {type(code_default_value)}. Using code default.")
+                effective_default = os.environ.get(env_name, code_default_value)
+        else:
+            effective_default = os.environ.get(env_name, code_default_value)
+
+        self.env_value = effective_default # This is the effective default before DB load
+
+        self.config_value = get_config_value(config_path) # Value from DB
         if self.config_value is not None and ENABLE_PERSISTENT_CONFIG:
-            log.info(f"'{env_name}' loaded from the latest database entry")
+            log.info(f"'{env_name}' (path: {config_path}) loaded from the database.")
             self.value = self.config_value
         else:
-            self.value = env_value
+            log.info(f"'{env_name}' (path: {config_path}) using effective default value derived from YAML/env/code.")
+            self.value = self.env_value
 
         PERSISTENT_CONFIG_REGISTRY.append(self)
 

@@ -16,8 +16,59 @@ fi
 
 KEY_FILE=.webui_secret_key
 
-PORT="${PORT:-8080}"
-HOST="${HOST:-0.0.0.0}"
+# Default values
+DEFAULT_HOST="0.0.0.0"
+DEFAULT_PORT="8080"
+DEFAULT_WORKERS="1"
+
+# Attempt to read from settings_config.yaml if yq is available
+CONFIG_HOST=""
+CONFIG_PORT=""
+CONFIG_WORKERS=""
+
+# Determine potential config file paths
+# Path relative to SCRIPT_DIR (i.e., backend directory) leading to project root
+PROJECT_ROOT_CONFIG_PATH="$SCRIPT_DIR/../settings_config.yaml"
+# Path within DATA_DIR (DATA_DIR needs to be defined or defaulted for this)
+# Assuming DATA_DIR might be set as an env var, or use a common default like './data' relative to SCRIPT_DIR/..
+DATA_DIR_PATH="${DATA_DIR:-$SCRIPT_DIR/../data}/settings_config.yaml"
+
+CONFIG_FILE_TO_USE=""
+
+if [ -f "$PROJECT_ROOT_CONFIG_PATH" ]; then
+  CONFIG_FILE_TO_USE="$PROJECT_ROOT_CONFIG_PATH"
+elif [ -f "$DATA_DIR_PATH" ]; then
+  CONFIG_FILE_TO_USE="$DATA_DIR_PATH"
+fi
+
+if [ -n "$CONFIG_FILE_TO_USE" ] && command -v yq &> /dev/null; then
+  echo "Attempting to read service configuration from $CONFIG_FILE_TO_USE using yq."
+  CONFIG_HOST=$(yq e '.service.host' "$CONFIG_FILE_TO_USE" 2>/dev/null)
+  CONFIG_PORT=$(yq e '.service.port' "$CONFIG_FILE_TO_USE" 2>/dev/null)
+  CONFIG_WORKERS=$(yq e '.service.workers' "$CONFIG_FILE_TO_USE" 2>/dev/null)
+
+  # yq returns 'null' as a string if key is not found or file is invalid yaml for path
+  [ "$CONFIG_HOST" = "null" ] && CONFIG_HOST=""
+  [ "$CONFIG_PORT" = "null" ] && CONFIG_PORT=""
+  [ "$CONFIG_WORKERS" = "null" ] && CONFIG_WORKERS=""
+
+  echo "Values from YAML: HOST='${CONFIG_HOST}', PORT='${CONFIG_PORT}', WORKERS='${CONFIG_WORKERS}'"
+else
+  if [ -z "$CONFIG_FILE_TO_USE" ]; then
+    echo "settings_config.yaml not found in default locations."
+  else
+    echo "yq command not found. Cannot parse settings_config.yaml."
+  fi
+  echo "Falling back to environment variables or script defaults for host, port, and workers."
+fi
+
+# Precedence: ENV_VAR > YAML_CONFIG > DEFAULT_VALUE
+HOST="${HOST:-${CONFIG_HOST:-$DEFAULT_HOST}}"
+PORT="${PORT:-${CONFIG_PORT:-$DEFAULT_PORT}}"
+UVICORN_WORKERS_VALUE="${WEBUI_WORKERS:-${CONFIG_WORKERS:-$DEFAULT_WORKERS}}"
+
+echo "Final effective settings for Uvicorn: HOST='${HOST}', PORT='${PORT}', WORKERS='${UVICORN_WORKERS_VALUE}'"
+
 if test "$WEBUI_SECRET_KEY $WEBUI_JWT_SECRET_KEY" = " "; then
   echo "Loading WEBUI_SECRET_KEY from file, not provided as an environment variable."
 
@@ -65,4 +116,4 @@ if [ -n "$SPACE_ID" ]; then
   export WEBUI_URL=${SPACE_HOST}
 fi
 
-WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --workers "${UVICORN_WORKERS:-1}"
+WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --workers "${UVICORN_WORKERS_VALUE}"

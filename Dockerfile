@@ -112,8 +112,10 @@ RUN if [ "$USE_OLLAMA" = "true" ]; then \
     apt-get install -y --no-install-recommends gcc python3-dev && \
     # for RAG OCR
     apt-get install -y --no-install-recommends ffmpeg libsm6 libxext6 && \
-    # install helper tools
+    # install helper tools (jq and yq)
     apt-get install -y --no-install-recommends curl jq && \
+    curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq && \
+    chmod +x /usr/bin/yq && \
     # install ollama
     curl -fsSL https://ollama.com/install.sh | sh && \
     # cleanup
@@ -125,6 +127,9 @@ RUN if [ "$USE_OLLAMA" = "true" ]; then \
     apt-get install -y --no-install-recommends gcc python3-dev && \
     # for RAG OCR
     apt-get install -y --no-install-recommends ffmpeg libsm6 libxext6 && \
+    # install yq
+    curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq && \
+    chmod +x /usr/bin/yq && \
     # cleanup
     rm -rf /var/lib/apt/lists/*; \
     fi
