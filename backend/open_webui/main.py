@@ -78,6 +78,8 @@ from open_webui.routers import (
     utils,
     external_rag as external_rag_router,
     branding as branding_router,
+    # v2 admin users router
+    v2_admin_users as admin_users_router_v2,
 )
 
 from open_webui.routers.retrieval import (
@@ -985,6 +987,7 @@ app.include_router(
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
 app.include_router(external_rag_router.router, prefix="/api/v1/external_rag_services", tags=["external_rag"])
 app.include_router(branding_router.router, prefix="/api/v1/branding", tags=["branding"])
+app.include_router(admin_users_router_v2.router, prefix="/api/v2/admin/users", tags=["Admin - Users (v2)"])
 
 
 try:

@@ -9,7 +9,7 @@ from open_webui.models.groups import Groups
 
 
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import BigInteger, Column, String, Text
+from sqlalchemy import BigInteger, Column, String, Text, Boolean, true # Added Boolean, true
 
 ####################
 # User DB Schema
@@ -34,6 +34,7 @@ class User(Base):
     info = Column(JSONField, nullable=True)
 
     oauth_sub = Column(Text, unique=True)
+    is_active = Column(Boolean, default=True, nullable=False, server_default=true())
 
 
 class UserSettings(BaseModel):
@@ -58,6 +59,7 @@ class UserModel(BaseModel):
     info: Optional[dict] = None
 
     oauth_sub: Optional[str] = None
+    is_active: bool = True
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -103,22 +105,25 @@ class UsersTable:
         profile_image_url: str = "/user.png",
         role: str = "pending",
         oauth_sub: Optional[str] = None,
+        is_active: bool = True, # Added is_active
     ) -> Optional[UserModel]:
         with get_db() as db:
-            user = UserModel(
-                **{
-                    "id": id,
-                    "name": name,
-                    "email": email,
-                    "role": role,
-                    "profile_image_url": profile_image_url,
-                    "last_active_at": int(time.time()),
-                    "created_at": int(time.time()),
-                    "updated_at": int(time.time()),
-                    "oauth_sub": oauth_sub,
-                }
-            )
-            result = User(**user.model_dump())
+            user_data = {
+                "id": id,
+                "name": name,
+                "email": email,
+                "role": role,
+                "profile_image_url": profile_image_url,
+                "last_active_at": int(time.time()),
+                "created_at": int(time.time()),
+                "updated_at": int(time.time()),
+                "oauth_sub": oauth_sub,
+                "is_active": is_active, # Added is_active
+            }
+            # Ensure UserModel can accept is_active for validation if needed, or remove from here if only for DB
+            user = UserModel(**user_data)
+
+            result = User(**user.model_dump()) # user.model_dump() will include is_active if in UserModel
             db.add(result)
             db.commit()
             db.refresh(result)
