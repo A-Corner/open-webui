@@ -80,6 +80,11 @@ from open_webui.routers import (
     branding as branding_router,
     # v2 admin users router
     v2_admin_users as admin_users_router_v2,
+    # Import other v2 admin routers
+    v2_admin_system_configs as admin_system_configs_router_v2,
+    v2_admin_knowledge as admin_knowledge_router_v2,
+    v2_admin_models as admin_models_router_v2,
+    v2_admin_external_rag as admin_external_rag_router_v2,
 )
 
 from open_webui.routers.retrieval import (
@@ -985,10 +990,15 @@ app.include_router(
     evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
-app.include_router(external_rag_router.router, prefix="/api/v1/external_rag_services", tags=["external_rag"])
+app.include_router(external_rag_router.router, prefix="/api/v1/external_rag_services", tags=["external_rag"]) # This is v1
 app.include_router(branding_router.router, prefix="/api/v1/branding", tags=["branding"])
-app.include_router(admin_users_router_v2.router, prefix="/api/v2/admin/users", tags=["Admin - Users (v2)"])
 
+# V2 Admin Routers
+app.include_router(admin_users_router_v2.router, prefix="/api/v2/admin/users", tags=["Admin V2 - Users"])
+app.include_router(admin_system_configs_router_v2.router, prefix="/api/v2/admin/system-configs", tags=["Admin V2 - System Configs"])
+app.include_router(admin_knowledge_router_v2.router, prefix="/api/v2/admin/knowledge", tags=["Admin V2 - Knowledge"])
+app.include_router(admin_models_router_v2.router, prefix="/api/v2/admin/models", tags=["Admin V2 - Models"])
+app.include_router(admin_external_rag_router_v2.router, prefix="/api/v2/admin/external-rag", tags=["Admin V2 - External RAG"])
 
 try:
     audit_level = AuditLevel(AUDIT_LOG_LEVEL)

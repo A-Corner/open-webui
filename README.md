@@ -61,6 +61,9 @@ For more information, be sure to check out our [BoR Documentation](https://docs.
 - 🌟 **Continuous Updates**: We are committed to improving BoR with regular updates, fixes, and new features.
 - ⚙️ **Centralized Configuration**: Simplified deployment and setup using a single `settings_config.yaml` file. Configure service ports, branding, LLM endpoints, RAG, and more in one place. See `settings_config.yaml.example` for all options.
 - 🧑‍💼 **User Management API (v2)**: A new set of administrator APIs (prefix: `/api/v2/admin/users`) for robust user management. Features include CRUD operations for users, activation/deactivation, password resets, pagination, and filtering. This API is designed for integration with a new, forthcoming independent admin interface.
+- ✨ **New React-based Admin Frontend (In Development)**: A modern, separate admin frontend built with React, Vite, Ant Design, Zustand, and TypeScript. It aims to provide a dedicated and enhanced experience for all administrative tasks, eventually replacing management functionalities from the original Svelte frontend's admin section.
+    - **Current Features:** Includes comprehensive User Management via the new V2 Admin APIs.
+    - **Future Scope:** Other admin modules (System Configuration, Knowledge Management, Model Management, etc.) are planned for this new frontend.
 
 Want to learn more about BoR's features? Check out our [BoR documentation](https://docs.bor.com/features) for a comprehensive overview!
 
@@ -258,5 +261,13 @@ BoR is based on software originally created by Timothy Jaeryang Baek. Let's make
 - ... (其他特性继续保持中英对照或单独的中文块)
 - ⚙️ **集中化配置 (`settings_config.yaml`)**: 通过单一 `settings_config.yaml` 文件简化部署和设置。集中配置服务端口、品牌化、LLM服务端点、RAG设置等。详情请参阅 `settings_config.yaml.example`。
 - 🧑‍💼 **用户管理API (v2)**: 一套全新的管理员API (前缀: `/api/v2/admin/users`)，用于强大的用户管理。功能包括用户的增删改查、账户激活/禁用、密码重置、分页和筛选用户列表。此API专为即将推出的独立管理界面集成而设计。
+
+- 🛡️ **精细的权限与用户组管理**: 管理员可以创建详细的用户角色和权限，确保安全的用户环境。这种精细化管理不仅增强了安全性，还允许定制化的用户体验，培养用户的归属感和责任感。
+- ... (其他特性继续保持中英对照或单独的中文块)
+- ⚙️ **集中化配置 (`settings_config.yaml`)**: 通过单一 `settings_config.yaml` 文件简化部署和设置。集中配置服务端口、品牌化、LLM服务端点、RAG设置等。详情请参阅 `settings_config.yaml.example`。
+- 🧑‍💼 **用户管理API (v2)**: 一套全新的管理员API (前缀: `/api/v2/admin/users`)，用于强大的用户管理。功能包括用户的增删改查、账户激活/禁用、密码重置、分页和筛选用户列表。此API专为即将推出的独立管理界面集成而设计。
+- ✨ **全新的基于React的管理前端 (开发中)**: 一个现代化的、独立的管理前端，使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建。旨在为所有管理任务提供专门且增强的体验，最终取代原Svelte前端中的管理功能。
+    - **当前功能:** 已包含通过新V2 Admin API实现的完整用户管理功能。
+    - **未来规划:** 其他管理模块（系统配置、知识库管理、模型管理等）也计划在此新前端中实现。
 
 (此处仅为示例，完整的中文翻译会很长，其他特性条目也应相应翻译)
