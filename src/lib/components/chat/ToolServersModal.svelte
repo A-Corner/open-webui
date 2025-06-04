@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext, onMount } from 'svelte';
-	import { models, config, toolServers, tools } from '$lib/stores';
+	import { models, config, toolServers, tools, finalBrandingStore } from '$lib/stores';
+	import type { BrandingConfig } from '$lib/stores/brandingStore';
 
 	import { toast } from 'svelte-sonner';
 	import { deleteSharedChatById, getChatById, shareChatById } from '$lib/apis/chats';
@@ -18,6 +19,12 @@
 	$: selectedTools = ($tools ?? []).filter((tool) => selectedToolIds.includes(tool.id));
 
 	const i18n = getContext('i18n');
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false;
 </script>
 
 <Modal bind:show size="md">
@@ -82,11 +89,14 @@
 
 			<div class="px-5 pb-5 w-full flex flex-col justify-center">
 				<div class=" text-xs text-gray-600 dark:text-gray-300 mb-2">
-					{$i18n.t('Open WebUI can use tools provided by any OpenAPI server.')} <br /><a
+					{$i18n.t('Open WebUI can use tools provided by any OpenAPI server.')}
+					{#if enableUpdateCheck}
+					<br /><a
 						class="underline"
 						href="https://github.com/open-webui/openapi-servers"
 						target="_blank">{$i18n.t('Learn more about OpenAPI tool servers.')}</a
 					>
+					{/if}
 				</div>
 				<div class=" text-sm dark:text-gray-300 mb-1">
 					{#each $toolServers as toolServer}

@@ -9,7 +9,8 @@
 	import { getModels as _getModels } from '$lib/apis';
 	import { getDirectConnectionsConfig, setDirectConnectionsConfig } from '$lib/apis/configs';
 
-	import { config, models, settings, user } from '$lib/stores';
+	import { config, models, settings, user, finalBrandingStore } from '$lib/stores';
+	import type { BrandingConfig } from '$lib/stores/brandingStore';
 
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
@@ -21,6 +22,12 @@
 	import OllamaConnection from './Connections/OllamaConnection.svelte';
 
 	const i18n = getContext('i18n');
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false;
 
 	const getModels = async () => {
 		const models = await _getModels(
@@ -346,13 +353,15 @@
 
 						<div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
 							{$i18n.t('Trouble accessing Ollama?')}
-							<a
-								class=" text-gray-300 font-medium underline"
-								href="https://github.com/open-webui/open-webui#troubleshooting"
-								target="_blank"
-							>
-								{$i18n.t('Click here for help.')}
-							</a>
+							{#if enableUpdateCheck}
+								<a
+									class=" text-gray-300 font-medium underline"
+									href="https://github.com/open-webui/open-webui#troubleshooting"
+									target="_blank"
+								>
+									{$i18n.t('Click here for help.')}
+								</a>
+							{/if}
 						</div>
 					</div>
 				{/if}

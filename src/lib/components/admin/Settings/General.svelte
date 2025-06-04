@@ -14,12 +14,19 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { WEBUI_BUILD_HASH, WEBUI_VERSION } from '$lib/constants';
-	import { config, showChangelog } from '$lib/stores';
+	import { config, showChangelog, finalBrandingStore } from '$lib/stores';
+	import type { BrandingConfig } from '$lib/stores/brandingStore';
 	import { compareVersion } from '$lib/utils';
 	import { onMount, getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	const i18n = getContext('i18n');
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false;
 
 	export let saveHandler: Function;
 
@@ -122,6 +129,7 @@
 
 					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
+					{#if enableUpdateCheck}
 					<div class="mb-2.5">
 						<div class=" mb-1 text-xs font-medium flex space-x-2 items-center">
 							<div>
@@ -169,6 +177,7 @@
 							</button>
 						</div>
 					</div>
+					{/if}
 
 					<div class="mb-2.5">
 						<div class="flex w-full justify-between items-center">
@@ -177,43 +186,64 @@
 									{$i18n.t('Help')}
 								</div>
 								<div class=" text-xs text-gray-500">
-									{$i18n.t('Discover how to use Open WebUI and seek support from the community.')}
+									{$i18n.t('Discover how to use {{APP_NAME}} and seek support from the community.', {APP_NAME: brandingConfig?.app_name || 'this application'})}
 								</div>
 							</div>
 
-							<a
-								class="flex-shrink-0 text-xs font-medium underline"
-								href="https://docs.openwebui.com/"
-								target="_blank"
-							>
-								{$i18n.t('Documentation')}
-							</a>
+							{#if brandingConfig?.custom_links?.find(link => link.text.toLowerCase().includes('documentation'))}
+								<a
+									class="flex-shrink-0 text-xs font-medium underline"
+									href={brandingConfig?.custom_links?.find(link => link.text.toLowerCase().includes('documentation'))?.url}
+									target="_blank"
+								>
+									{$i18n.t('Documentation')}
+								</a>
+							{:else if enableUpdateCheck}
+								<a
+									class="flex-shrink-0 text-xs font-medium underline"
+									href="https://docs.openwebui.com/"
+									target="_blank"
+								>
+									{$i18n.t('Documentation')}
+								</a>
+							{/if}
 						</div>
 
-						<div class="mt-1">
-							<div class="flex space-x-1">
-								<a href="https://discord.gg/5rJgQTnV4s" target="_blank">
-									<img
-										alt="Discord"
-										src="https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white"
-									/>
-								</a>
-
-								<a href="https://twitter.com/OpenWebUI" target="_blank">
-									<img
-										alt="X (formerly Twitter) Follow"
-										src="https://img.shields.io/twitter/follow/OpenWebUI"
-									/>
-								</a>
-
-								<a href="https://github.com/open-webui/open-webui" target="_blank">
-									<img
-										alt="Github Repo"
-										src="https://img.shields.io/github/stars/open-webui/open-webui?style=social&label=Star us on Github"
-									/>
-								</a>
+						{#if brandingConfig?.custom_links && brandingConfig.custom_links.length > 0}
+							<div class="mt-1 flex flex-wrap gap-1">
+								{#each brandingConfig.custom_links as link}
+									<a href={link.url} target="_blank" rel="noopener noreferrer"
+										 class="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+										{link.text}
+									</a>
+								{/each}
 							</div>
-						</div>
+						{:else if enableUpdateCheck}
+							<div class="mt-1">
+								<div class="flex space-x-1">
+									<a href="https://discord.gg/5rJgQTnV4s" target="_blank">
+										<img
+											alt="Discord"
+											src="https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white"
+										/>
+									</a>
+
+									<a href="https://twitter.com/OpenWebUI" target="_blank">
+										<img
+											alt="X (formerly Twitter) Follow"
+											src="https://img.shields.io/twitter/follow/OpenWebUI"
+										/>
+									</a>
+
+									<a href="https://github.com/open-webui/open-webui" target="_blank">
+										<img
+											alt="Github Repo"
+											src="https://img.shields.io/github/stars/open-webui/open-webui?style=social&label=Star us on Github"
+										/>
+									</a>
+								</div>
+							</div>
+						{/if}
 					</div>
 
 					<div class="mb-2.5">

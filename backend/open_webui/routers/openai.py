@@ -39,6 +39,7 @@ from open_webui.utils.payload import (
 from open_webui.utils.misc import (
     convert_logit_bias_input_to_json,
 )
+from open_webui.core.branding import APP_BRANDING_CONFIG # Import branding config
 
 from open_webui.utils.auth import get_admin_user, get_verified_user
 from open_webui.utils.access_control import has_access
@@ -706,10 +707,10 @@ async def generate_chat_completion(
                 "Content-Type": "application/json",
                 **(
                     {
-                        "HTTP-Referer": "https://openwebui.com/",
-                        "X-Title": "Open WebUI",
+                        "HTTP-Referer": "https://openwebui.com/", # This referer might also be part of a branding config if needed
+                        "X-Title": APP_BRANDING_CONFIG.get("app_name", "Open WebUI"),
                     }
-                    if "openrouter.ai" in url
+                    if "openrouter.ai" in url # Condition to send this header might need review based on branding intent
                     else {}
                 ),
                 **(

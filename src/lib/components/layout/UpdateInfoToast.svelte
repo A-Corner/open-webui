@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getContext, createEventDispatcher } from 'svelte';
+	import { finalBrandingStore, type BrandingConfig } from '$lib/stores/brandingStore'; // Import branding store
 
 	const dispatch = createEventDispatcher();
 	const i18n = getContext('i18n');
@@ -11,8 +12,17 @@
 		current: WEBUI_VERSION,
 		latest: WEBUI_VERSION
 	};
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
+
+	// Default to true if brandingConfig is not loaded yet, but layout should prevent showing this.
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false;
 </script>
 
+{#if enableUpdateCheck}
 <div
 	class="flex items-start bg-[#F1F8FE] dark:bg-[#020C1D] border border-[3371D5] dark:border-[#03113B] text-[#3371D5] dark:text-[#6795EC] rounded-lg px-3.5 py-3 text-xs max-w-80 pr-2 w-full shadow-lg"
 >
@@ -27,6 +37,7 @@
 	</div>
 
 	<div class=" shrink-0 pr-1">
+{/if}
 		<button
 			class=" hover:text-blue-900 dark:hover:text-blue-300 transition"
 			on:click={() => {

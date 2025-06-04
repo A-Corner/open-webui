@@ -15,8 +15,13 @@
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import OnBoarding from '$lib/components/OnBoarding.svelte';
+	import { finalBrandingStore, type BrandingConfig } from '$lib/stores/brandingStore'; // Import branding store
 
 	const i18n = getContext('i18n');
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
 
 	let loaded = false;
 
@@ -217,7 +222,12 @@
 								submitHandler();
 							}}
 						>
-							<div class="mb-1">
+							<div class="mb-3">
+								{#if brandingConfig?.login_slogan}
+									<div class="text-md text-gray-600 dark:text-gray-400 mb-3">
+										{brandingConfig.login_slogan}
+									</div>
+								{/if}
 								<div class=" text-2xl font-medium">
 									{#if $config?.onboarding ?? false}
 										{$i18n.t(`Get started with {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}

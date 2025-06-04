@@ -46,8 +46,13 @@
 	import UpdateInfoToast from '$lib/components/layout/UpdateInfoToast.svelte';
 	import { get } from 'svelte/store';
 	import Spinner from '$lib/components/common/Spinner.svelte';
+	import { finalBrandingStore, type BrandingConfig } from '$lib/stores/brandingStore'; // Import branding store
 
 	const i18n = getContext('i18n');
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
 
 	let loaded = false;
 	let DB = null;
@@ -321,7 +326,49 @@
 			</div>
 		{/if}
 	</div>
+
+	{#if brandingConfig?.footer_text || (brandingConfig?.custom_links && brandingConfig.custom_links.length > 0)}
+	<footer class="p-4 text-center text-sm text-gray-500 dark:text-gray-400 border-t dark:border-gray-700">
+		{#if brandingConfig.footer_text}
+			<p>{brandingConfig.footer_text}</p>
+		{/if}
+		{#if brandingConfig.custom_links && brandingConfig.custom_links.length > 0}
+			<div class="mt-2 space-x-4">
+				{#each brandingConfig.custom_links as link}
+					<a href={link.url} target="_blank" rel="noopener noreferrer" class="hover:underline">{link.text}</a>
+				{/each}
+			</div>
+		{/if}
+	</footer>
+	{/if}
 </div>
+
+{#if brandingConfig}
+	<svelte:head>
+		<title>{brandingConfig.app_title || 'Open WebUI'}</title>
+		<link rel="icon" href={brandingConfig.favicon_path || '/static/favicon.png'} />
+		{#if brandingConfig.app_name}
+			<meta name="apple-mobile-web-app-title" content={brandingConfig.app_name} />
+		{/if}
+		{#if brandingConfig.meta_tags?.description}
+			<meta name="description" content={brandingConfig.meta_tags.description} />
+		{/if}
+		{#if brandingConfig.meta_tags?.keywords}
+			<meta name="keywords" content={brandingConfig.meta_tags.keywords} />
+		{/if}
+		<!-- Potentially apply theme variables if ui_theme is used -->
+		{#if brandingConfig.ui_theme?.primary_color || brandingConfig.ui_theme?.font_family}
+			<style>
+				:root {
+					{brandingConfig.ui_theme?.primary_color ? `--color-primary: ${brandingConfig.ui_theme.primary_color};` : ''}
+					{brandingConfig.ui_theme?.secondary_color ? `--color-secondary: ${brandingConfig.ui_theme.secondary_color};` : ''}
+					{brandingConfig.ui_theme?.font_family ? `--font-family-sans: ${brandingConfig.ui_theme.font_family};` : ''}
+					/* Add other theme variables as needed */
+				}
+			</style>
+		{/if}
+	</svelte:head>
+{/if}
 
 <style>
 	.loading {

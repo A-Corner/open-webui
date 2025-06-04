@@ -76,7 +76,8 @@ from open_webui.routers import (
     tools,
     users,
     utils,
-    external_rag as external_rag_router, # Added import
+    external_rag as external_rag_router,
+    branding as branding_router,
 )
 
 from open_webui.routers.retrieval import (
@@ -437,8 +438,10 @@ async def lifespan(app: FastAPI):
     yield
 
 
+from open_webui.core.branding import APP_BRANDING_CONFIG # Ensure it's imported if not already for this change
+
 app = FastAPI(
-    title="Open WebUI",
+    title=APP_BRANDING_CONFIG.get("app_name", "Open WebUI"), # Use branding app_name
     docs_url="/docs" if ENV == "dev" else None,
     openapi_url="/openapi.json" if ENV == "dev" else None,
     redoc_url=None,
@@ -452,7 +455,16 @@ app.state.config = AppConfig(
     redis_sentinels=get_sentinels_from_env(REDIS_SENTINEL_HOSTS, REDIS_SENTINEL_PORT),
 )
 
-app.state.WEBUI_NAME = WEBUI_NAME
+from open_webui.core.branding import APP_BRANDING_CONFIG
+app.state.APP_BRANDING_CONFIG = APP_BRANDING_CONFIG
+
+# Update WEBUI_NAME from branding config if available and different from env var.
+# This ensures that app.state.WEBUI_NAME (used by /api/config) reflects branding.
+if APP_BRANDING_CONFIG.get("app_name"):
+    app.state.WEBUI_NAME = APP_BRANDING_CONFIG["app_name"]
+else:
+    app.state.WEBUI_NAME = WEBUI_NAME # Fallback to WEBUI_NAME from env if not in branding
+
 app.state.LICENSE_METADATA = None
 
 
@@ -971,7 +983,8 @@ app.include_router(
     evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
-app.include_router(external_rag_router.router, prefix="/api/v1/external_rag_services", tags=["external_rag"]) # Added router
+app.include_router(external_rag_router.router, prefix="/api/v1/external_rag_services", tags=["external_rag"])
+app.include_router(branding_router.router, prefix="/api/v1/branding", tags=["branding"])
 
 
 try:
@@ -1264,7 +1277,7 @@ async def get_app_config(request: Request):
     return {
         **({"onboarding": True} if onboarding else {}),
         "status": True,
-        "name": app.state.WEBUI_NAME,
+        "name": app.state.APP_BRANDING_CONFIG.get("app_name", app.state.WEBUI_NAME),
         "version": VERSION,
         "default_locale": str(DEFAULT_LOCALE),
         "oauth": {
@@ -1371,10 +1384,14 @@ async def get_app_version():
 
 
 @app.get("/api/version/updates")
-async def get_app_latest_release_version(user=Depends(get_verified_user)):
-    if OFFLINE_MODE:
+async def get_app_latest_release_version(request: Request, user=Depends(get_verified_user)): # Added request: Request
+    # Use app.state.APP_BRANDING_CONFIG which should be populated at startup
+    branding_config = request.app.state.APP_BRANDING_CONFIG
+    enable_update_check = branding_config.get("enable_update_check", True)
+
+    if OFFLINE_MODE or not enable_update_check:
         log.debug(
-            f"Offline mode is enabled, returning current version as latest version"
+            f"Update check disabled (Offline: {OFFLINE_MODE}, BrandingEnable: {enable_update_check}). Returning current version as latest."
         )
         return {"current": VERSION, "latest": VERSION}
     try:
@@ -1432,12 +1449,15 @@ async def oauth_callback(provider: str, request: Request, response: Response):
 @app.get("/manifest.json")
 async def get_manifest_json():
     if app.state.EXTERNAL_PWA_MANIFEST_URL:
+        # This case might also need to consider if branding config should override PWA manifest values
         return requests.get(app.state.EXTERNAL_PWA_MANIFEST_URL).json()
     else:
+        # Use branding config for PWA manifest details
+        branding_conf = app.state.APP_BRANDING_CONFIG
         return {
-            "name": app.state.WEBUI_NAME,
-            "short_name": app.state.WEBUI_NAME,
-            "description": "Open WebUI is an open, extensible, user-friendly interface for AI that adapts to your workflow.",
+            "name": branding_conf.get("app_name", "Open WebUI"),
+            "short_name": branding_conf.get("app_name", "Open WebUI"),
+            "description": branding_conf.get("meta_tags", {}).get("description", "Open WebUI default description."),
             "start_url": "/",
             "display": "standalone",
             "background_color": "#343541",
@@ -1463,10 +1483,10 @@ async def get_manifest_json():
 async def get_opensearch_xml():
     xml_content = rf"""
     <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-    <ShortName>{app.state.WEBUI_NAME}</ShortName>
-    <Description>Search {app.state.WEBUI_NAME}</Description>
+    <ShortName>{app.state.APP_BRANDING_CONFIG.get("app_name", "Open WebUI")}</ShortName>
+    <Description>Search {app.state.APP_BRANDING_CONFIG.get("app_name", "Open WebUI")}</Description>
     <InputEncoding>UTF-8</InputEncoding>
-    <Image width="16" height="16" type="image/x-icon">{app.state.config.WEBUI_URL}/static/favicon.png</Image>
+    <Image width="16" height="16" type="image/x-icon">{app.state.config.WEBUI_URL}{app.state.APP_BRANDING_CONFIG.get("favicon_path", "/static/favicon.png")}</Image>
     <Url type="text/html" method="get" template="{app.state.config.WEBUI_URL}/?q={"{searchTerms}"}"/>
     <moz:SearchForm>{app.state.config.WEBUI_URL}</moz:SearchForm>
     </OpenSearchDescription>

@@ -6,7 +6,8 @@
 	const dispatch = createEventDispatcher();
 	const i18n = getContext('i18n');
 
-	import { models, settings, toolServers, user } from '$lib/stores';
+	import { models, settings, toolServers, user, finalBrandingStore } from '$lib/stores'; // Added finalBrandingStore
+	import type { BrandingConfig } from '$lib/stores/brandingStore'; // Added BrandingConfig type
 
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
@@ -17,6 +18,12 @@
 	import AddServerModal from '$lib/components/AddServerModal.svelte';
 
 	export let saveSettings: Function;
+
+	let brandingConfig: BrandingConfig | null = null; // Added
+	finalBrandingStore.subscribe(value => { // Added
+		brandingConfig = value.config;
+	});
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false; // Added
 
 	let servers = null;
 	let showConnectionModal = false;
@@ -98,6 +105,7 @@
 						</div>
 					</div>
 
+					{#if enableUpdateCheck} {/* Modified condition */}
 					<div class=" text-xs text-gray-600 dark:text-gray-300 mb-2">
 						<a
 							class="underline"
@@ -105,6 +113,7 @@
 							target="_blank">{$i18n.t('Learn more about OpenAPI tool servers.')}</a
 						>
 					</div>
+					{/if}
 				</div>
 			</div>
 		{:else}

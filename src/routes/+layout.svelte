@@ -26,8 +26,10 @@
 		isLastActiveTab,
 		isApp,
 		appInfo,
-		toolServers
+		toolServers,
+		finalBrandingStore // Import branding store
 	} from '$lib/stores';
+	import type { BrandingConfig } from '$lib/stores/brandingStore'; // Import type
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { Toaster, toast } from 'svelte-sonner';
@@ -49,6 +51,11 @@
 	import { chatCompletion } from '$lib/apis/openai';
 
 	setContext('i18n', i18n);
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
 
 	const bc = new BroadcastChannel('active-tab-channel');
 
@@ -261,9 +268,10 @@
 				if (done) {
 					if ($isLastActiveTab) {
 						if ($settings?.notificationEnabled ?? false) {
-							new Notification(`${title} | Open WebUI`, {
+						const appNameToDisplay = brandingConfig?.app_name || 'Open WebUI';
+						new Notification(`${title} | ${appNameToDisplay}`, {
 								body: content,
-								icon: `${WEBUI_BASE_URL}/static/favicon.png`
+							icon: brandingConfig?.favicon_path || `${WEBUI_BASE_URL}/static/favicon.png`
 							});
 						}
 					}
@@ -410,9 +418,10 @@
 			if (type === 'message') {
 				if ($isLastActiveTab) {
 					if ($settings?.notificationEnabled ?? false) {
-						new Notification(`${data?.user?.name} (#${event?.channel?.name}) | Open WebUI`, {
+						const appNameToDisplay = brandingConfig?.app_name || 'Open WebUI';
+						new Notification(`${data?.user?.name} (#${event?.channel?.name}) | ${appNameToDisplay}`, {
 							body: data?.content,
-							icon: data?.user?.profile_image_url ?? `${WEBUI_BASE_URL}/static/favicon.png`
+							icon: data?.user?.profile_image_url ?? brandingConfig?.favicon_path ?? `${WEBUI_BASE_URL}/static/favicon.png`
 						});
 					}
 				}
@@ -606,8 +615,10 @@
 </script>
 
 <svelte:head>
+	<!-- Title is already dynamically set by (app)/+layout.svelte using brandingStore.app_title if nested -->
+	<!-- If this is the absolute root for all pages (like /auth, /error), $WEBUI_NAME is fine as it's updated from backend config -->
 	<title>{$WEBUI_NAME}</title>
-	<link crossorigin="anonymous" rel="icon" href="{WEBUI_BASE_URL}/static/favicon.png" />
+	<link crossorigin="anonymous" rel="icon" href="{brandingConfig?.favicon_path || `${WEBUI_BASE_URL}/static/favicon.png`}" />
 
 	<!-- rosepine themes have been disabled as it's not up to date with our latest version. -->
 	<!-- feel free to make a PR to fix if anyone wants to see it return -->

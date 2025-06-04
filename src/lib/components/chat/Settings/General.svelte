@@ -4,9 +4,16 @@
 	import { getLanguages, changeLanguage } from '$lib/i18n';
 	const dispatch = createEventDispatcher();
 
-	import { models, settings, theme, user } from '$lib/stores';
+	import { models, settings, theme, user, finalBrandingStore } from '$lib/stores';
+	import type { BrandingConfig } from '$lib/stores/brandingStore';
 
 	const i18n = getContext('i18n');
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false;
 
 	import AdvancedParams from './Advanced/AdvancedParams.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
@@ -274,7 +281,7 @@
 					</select>
 				</div>
 			</div>
-			{#if $i18n.language === 'en-US'}
+		{#if $i18n.language === 'en-US' && enableUpdateCheck}
 				<div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
 					Couldn't find your language?
 					<a
@@ -282,7 +289,7 @@
 						href="https://github.com/open-webui/open-webui/blob/main/docs/CONTRIBUTING.md#-translations-and-internationalization"
 						target="_blank"
 					>
-						Help us translate Open WebUI!
+					Help us translate {brandingConfig?.app_name || 'Open WebUI'}!
 					</a>
 				</div>
 			{/if}

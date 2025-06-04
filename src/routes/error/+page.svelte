@@ -1,9 +1,16 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { WEBUI_NAME, config } from '$lib/stores';
+	import { WEBUI_NAME, config, finalBrandingStore } from '$lib/stores';
+	import type { BrandingConfig } from '$lib/stores/brandingStore';
 	import { onMount, getContext } from 'svelte';
 
 	const i18n = getContext('i18n');
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
+	$: enableUpdateCheck = brandingConfig?.enable_update_check !== false;
 
 	let loaded = false;
 
@@ -32,6 +39,7 @@
 
 						<br class=" " />
 						<br class=" " />
+						{#if enableUpdateCheck}
 						<a
 							class=" font-semibold underline"
 							href="https://github.com/open-webui/open-webui#how-to-install-"
@@ -41,6 +49,9 @@
 						<a class=" font-semibold underline" href="https://discord.gg/5rJgQTnV4s" target="_blank"
 							>{$i18n.t('join our Discord for help.')}</a
 						>
+						{:else}
+							{$i18n.t('Please contact your system administrator for assistance.')}
+						{/if}
 					</div>
 
 					<div class=" mt-6 mx-auto relative group w-fit">

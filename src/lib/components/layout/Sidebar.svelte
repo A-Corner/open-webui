@@ -20,11 +20,18 @@
 		channels,
 		socket,
 		config,
-		isApp
+		isApp,
+		finalBrandingStore // Import branding store
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
+	import type { BrandingConfig } from '$lib/stores/brandingStore'; // Import type
 
 	const i18n = getContext('i18n');
+
+	let brandingConfig: BrandingConfig | null = null;
+	finalBrandingStore.subscribe(value => {
+		brandingConfig = value.config;
+	});
 
 	import {
 		deleteChatById,
@@ -528,13 +535,13 @@
 					<div class="self-center mx-1.5">
 						<img
 							crossorigin="anonymous"
-							src="{WEBUI_BASE_URL}/static/favicon.png"
+							src="{brandingConfig?.logo_path || `${WEBUI_BASE_URL}/static/favicon.png`}"
 							class=" size-5 -translate-x-1.5 rounded-full"
-							alt="logo"
+							alt="{brandingConfig?.app_name || 'Logo'}"
 						/>
 					</div>
 					<div class=" self-center font-medium text-sm text-gray-850 dark:text-white font-primary">
-						{$i18n.t('New Chat')}
+						{brandingConfig?.app_name ? `${i18n.t('New Chat in')} ${brandingConfig.app_name}` : $i18n.t('New Chat')}
 					</div>
 				</div>
 
