@@ -10,6 +10,10 @@ import {
   TeamOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  CloudServerOutlined,
+  ApiOutlined,
+  AppstoreAddOutlined,
+  ReadOutlined, // Icon for Knowledge Base
   // Add other icons as needed for menu items
 } from '@ant-design/icons';
 import { useAuthStore } from '../store/authStore'; // Adjust path
@@ -68,11 +72,32 @@ const AdminLayout: React.FC = () => {
       label: 'Settings',
       children: [
         {
-          key: '/settings/system',
-          label: <Link to="/settings/system">System</Link>,
+          key: '/settings/system-configs',
+          label: <Link to="/settings/system-configs">System Configs</Link>,
         },
-        // Add other settings pages here
       ],
+    },
+    {
+      key: 'rag-management', // Parent key for RAG section
+      icon: <ApiOutlined />,
+      label: 'RAG Management',
+      children: [
+        {
+          key: '/rag/external-services',
+          icon: <CloudServerOutlined />,
+          label: <Link to="/rag/external-services">External Services</Link>,
+        },
+        {
+          key: '/knowledge/management', // New link for Knowledge Base Management
+          icon: <ReadOutlined />,
+          label: <Link to="/knowledge/management">Knowledge Bases</Link>,
+        },
+      ]
+    },
+    {
+      key: '/models/management', // New top-level menu item for Model Management
+      icon: <AppstoreAddOutlined />,
+      label: <Link to="/models/management">Model Management</Link>,
     },
   ];
 
