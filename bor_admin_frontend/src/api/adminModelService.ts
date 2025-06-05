@@ -1,23 +1,63 @@
 import axiosInstance from './axiosInstance'; // Assuming this is configured
 
 const ADMIN_MODELS_API_BASE_URL = '/api/v2/admin/models';
+const ADMIN_REMOTE_SERVICES_API_BASE_URL = `${ADMIN_MODELS_API_BASE_URL}/remote-services`; // New base for remote services
 
 export interface ModelResponse {
-  id: string; // e.g., "ollama/llama3:latest" or "openai_compatible/gpt-4o"
-  name: string; // Display name, often derived from ID
-  source: 'ollama' | 'openai_compatible' | 'huggingface_sentence_transformer' | string;
-  is_local?: boolean; // Especially for Ollama models
-  size?: number; // Size in bytes for local models
-  modified_at?: string; // ISO date string for Ollama models
-  // Other metadata like parameters, capabilities, etc. might be part of a detailed view
-  // For lists, keep it concise.
-  details?: Record<string, any>; // For Ollama, this might contain family, parameter_size, quantization_level
+  id: string;
+  name: string;
+  source: 'ollama' | 'openai_compatible' | 'huggingface_transformer' | string;
+  is_local?: boolean;
+  size?: number;
+  modified_at?: string;
+  family?: string;
+  parameter_size?: string;
+  quantization_level?: string;
+  description?: string;
+  // for openai_compatible (or other remote services)
+  api_base_url?: string;
+  api_key_set?: boolean;
+  service_id?: string; // ID of the remote service configuration, if applicable
+  details?: Record<string, any>;
 }
 
 export interface ModelPullPayload {
-  model_name: string; // e.g., "llama3:latest" or "ollama/llama3:latest" for clarity on source if ambiguous
-  // source?: 'ollama'; // Backend might infer from model_name format or require it
+  model_name: string;
 }
+
+export interface ModelPullResponse { // Enhanced response for pull
+  status: "pulling_started" | "already_exists" | "error";
+  message: string;
+  model_name?: string;
+  task_id?: string;
+}
+
+// For Remote Model Service Configuration
+export interface RemoteServiceResponse extends ModelResponse { // Can extend ModelResponse or be separate
+    // service_id is already in ModelResponse if we use that.
+    // If ModelResponse is purely for listed models, then a dedicated RemoteServiceResponse is better.
+    // For now, let's assume ModelResponse is flexible enough or we create a dedicated one.
+    // Let's use a more specific one for clarity for CRUD of service configurations:
+}
+
+export interface RemoteModelServiceConfig {
+    id: string; // service_id, usually UUID or DB id
+    name: string; // User-defined name for this configuration
+    api_base_url: string;
+    api_key_set?: boolean; // To indicate if a key is configured (key itself not sent)
+    description?: string;
+    source_type: 'openai_compatible' | string; // e.g., 'anthropic', 'groq', etc.
+    // Potentially other metadata like associated models if API provides link
+}
+export interface RemoteModelServiceCreatePayload {
+  name: string;
+  api_base_url: string;
+  api_key?: string; // Sent on create/update only
+  description?: string;
+  source_type: 'openai_compatible' | string;
+}
+export type RemoteModelServiceUpdatePayload = Partial<RemoteModelServiceCreatePayload>;
+
 
 export interface ModelSettings {
   default_models?: string[]; // Model IDs, e.g., ["ollama/llama3:latest", "openai_compatible/gpt-4o"]
@@ -29,7 +69,7 @@ export type ModelSettingsUpdatePayload = Partial<ModelSettings>;
 
 // API Service Functions
 
-export const getModels = async (source?: string): Promise<ModelResponse[]> => {
+export const getModels = async (source?: string): Promise<ModelResponse[]> => { // This might now include remote services configured
   const params: Record<string, string> = {};
   if (source) {
     params.source = source;
@@ -39,10 +79,9 @@ export const getModels = async (source?: string): Promise<ModelResponse[]> => {
 };
 
 export const pullOllamaModel = async (data: ModelPullPayload): Promise<any> => {
-  // The backend might return a task ID for polling, or a streaming response,
-  // or just a 202 Accepted. For now, assuming a simple response.
-  const response = await axiosInstance.post(`${ADMIN_MODELS_API_BASE_URL}/pull`, data);
-  return response.data; // Or handle specific status codes like 202
+// The backend might return a task ID for polling, or a streaming response.
+  const response = await axiosInstance.post<ModelPullResponse>(`${ADMIN_MODELS_API_BASE_URL}/pull`, data);
+  return response.data;
 };
 
 export const deleteOllamaModel = async (modelName: string): Promise<void> => {
@@ -75,6 +114,23 @@ const adminModelService = {
   deleteOllamaModel,
   getModelSettings,
   updateModelSettings,
+
+  // Functions for Remote Model Service Configurations
+  getRemoteModelServices: async (): Promise<RemoteModelServiceConfig[]> => {
+    const response = await axiosInstance.get<RemoteModelServiceConfig[]>(ADMIN_REMOTE_SERVICES_API_BASE_URL);
+    return response.data;
+  },
+  createRemoteModelService: async (data: RemoteModelServiceCreatePayload): Promise<RemoteModelServiceConfig> => {
+    const response = await axiosInstance.post<RemoteModelServiceConfig>(ADMIN_REMOTE_SERVICES_API_BASE_URL, data);
+    return response.data;
+  },
+  updateRemoteModelService: async (serviceId: string, data: RemoteModelServiceUpdatePayload): Promise<RemoteModelServiceConfig> => {
+    const response = await axiosInstance.put<RemoteModelServiceConfig>(`${ADMIN_REMOTE_SERVICES_API_BASE_URL}/${serviceId}`, data);
+    return response.data;
+  },
+  deleteRemoteModelService: async (serviceId: string): Promise<void> => {
+    await axiosInstance.delete(`${ADMIN_REMOTE_SERVICES_API_BASE_URL}/${serviceId}`);
+  },
 };
 
 export default adminModelService;

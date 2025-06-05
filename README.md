@@ -154,6 +154,54 @@ Additional admin modules and enhancements will be progressively added to this ne
 
 *(Please note: All screenshots referenced above are placeholders and need to be created and added to an `images/` directory in the project root.)*
 
+## 📦 BoR App Frontend (New) - In Development
+
+Alongside the new admin interface, a brand new **application frontend** is also under development, built with the same modern technology stack: React, Vite, Ant Design, Zustand, and TypeScript.
+
+**Purpose:** This frontend aims to eventually replace the current Svelte-based user-facing application. It will provide the main interface for users to interact with chat functionalities, RAG features, manage their profiles, and other application-specific settings.
+
+**Current Status & Features (Initial Framework):**
+The foundational framework for the `bor_app_frontend` has been established. This includes:
+*   A well-defined project structure using Vite and TypeScript.
+*   Core routing capabilities powered by React Router.
+*   An API client (Axios) pre-configured for communication with the BoR backend (targeting existing V1 application APIs like `/api/v1/users/me`, `/api/v1/chats`, etc.).
+*   A Zustand store (`userSessionStore`) for managing user sessions, including authentication state and token persistence via localStorage.
+*   Basic application layout (`MainAppLayout.tsx`) and a login page (`LoginPage.tsx`) using Ant Design components.
+
+This initial setup provides the essential building blocks for developing specific user-facing features such as chat interfaces, document interactions, RAG querying, user settings management, and more.
+
+**How to Run (App Frontend for Development):**
+
+> **Important Note:** Due to current automated tooling limitations during the initial project scaffolding phase, the Vite project initialization (`npm create vite`) and initial dependency installation (`npm install`) for the `bor_app_frontend` directory must be performed manually by the developer in their local environment. The necessary source code files for the core framework and directory structure have been programmatically provided.
+
+1.  **Navigate to the `bor_app_frontend` directory:**
+    ```bash
+    cd bor_app_frontend
+    ```
+2.  **(Manual Step) Initialize Vite Project & Install Dependencies:**
+    If not already done (e.g., if you're setting this up for the first time after pulling the codebase):
+    *   Ensure you have Node.js and npm (or Yarn/pnpm) installed.
+    *   If `package.json` is missing or incomplete, you might need to run `npm create vite@latest . -- --template react-ts` (or your package manager's equivalent) carefully, ensuring not to overwrite existing source files if they are already present.
+    *   Install core dependencies:
+        ```bash
+        npm install antd react-router-dom@6 axios zustand react-hook-form react-markdown remark-gfm rehype-highlight
+        npm install @ant-design/icons --save
+        # npm install dayjs # If needed for date handling
+        ```
+        (Refer to the initial setup plan for a more complete list if needed, or check existing `bor_admin_frontend` for guidance on typical dev dependencies like `@types/react` etc. if not added by Vite's template.)
+3.  **(Once initialized and dependencies are installed) Create Environment File:**
+    *   In the `bor_app_frontend` root, create a `.env.development` file (or `.env.local`).
+    *   Add your API base URL, for example: `VITE_API_BASE_URL=/api/v1`
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    # or yarn dev / pnpm dev
+    ```
+    The application frontend will typically be available at `http://localhost:PORT_OF_REACT_APP/` (Vite's default is often 5173; ensure it's different from the admin frontend or backend if running simultaneously). It connects to the same backend API as the main/admin applications.
+
+**Future Scope:**
+Future development will focus on building out the core user-facing features, including chat interfaces, RAG interactions, user settings, and more, to achieve parity with and eventually supersede the Svelte application.
+
 ## 🔗 Also Check Out BoR Community!
 
 Don't forget to explore our sibling project, [BoR Community](https://community.bor.com/) (assuming URL), where you can discover, download, and explore customized Modelfiles. BoR Community offers a wide range of exciting possibilities for enhancing your chat interactions with BoR! 🚀
@@ -358,6 +406,9 @@ BoR is based on software originally created by Timothy Jaeryang Baek. Let's make
 - ✨ **全新的基于React的管理前端 (开发中)**: 一个现代化的、独立的管理前端，使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建。旨在为所有管理任务提供专门且增强的体验，最终取代原Svelte前端中的管理功能。
     - **当前功能:** 已包含通过新V2 Admin API实现的完整用户管理、系统配置、外部RAG服务管理，以及初步的模型和知识库管理功能。
     - **未来规划:** 其他管理模块和现有功能的增强将持续进行。
+- ✨ **全新的基于React的应用前端 (开发中)**: 一个现代化的、独立的面向用户的应用前端，同样使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建。其目标是最终取代当前基于Svelte的应用，提供聊天、RAG互动、用户配置等功能。
+    - **当前状态:** 已完成基础框架搭建，包括项目结构、核心路由、API客户端、Zustand会话管理和基础布局。
+    - **未来规划:** 后续将集中开发面向用户的核心功能。
 
 (此处仅为示例，完整的中文翻译会很长，其他特性条目也应相应翻译)
 
@@ -447,3 +498,53 @@ React 管理前端在开发模式下通常独立运行。
 其他管理模块和现有功能的增强将逐步添加到此新的React前端。
 
 *(请注意：以上所有引用的截图均为占位符，需要手动创建并添加到项目根目录的 `images/` 文件夹中。)*
+
+
+---
+## 📦 BoR 应用前端 (新) - 开发中
+
+与新的管理界面并行，我们也在开发一个全新的**应用前端**，它同样基于现代技术栈：React、Vite、Ant Design、Zustand 和 TypeScript。
+
+**目的：** 此前端旨在最终取代当前基于Svelte的用户界面，为用户提供聊天、RAG互动、个人资料管理等功能。
+
+**当前状态与特性（初始框架）：**
+`bor_app_frontend` 的基础框架已经搭建完成，包括：
+*   基于 Vite 和 TypeScript 的项目结构。
+*   使用 React Router 实现的核心路由功能。
+*   已配置用于后端通信的API客户端 (Axios) (目标为现有的V1应用API)。
+*   用于用户会话管理的 Zustand store (通过localStorage持久化token)。
+*   使用 Ant Design 实现的基础应用布局和登录页面。
+
+这个初始设置为后续开发具体应用功能（如聊天界面、文档交互、RAG查询等）奠定了基础。
+
+**如何运行（应用前端开发）：**
+
+> **重要提示：** 由于当前自动化工具在项目初始化阶段存在限制，`bor_app_frontend` 目录的Vite项目初始化 (`npm create vite`) 和初始依赖安装 (`npm install`) **必须由开发者在本地环境中手动完成**。核心框架的源代码文件和目录结构已通过程序提供。
+
+1.  **进入 `bor_app_frontend` 目录：**
+    ```bash
+    cd bor_app_frontend
+    ```
+2.  **（手动步骤）初始化Vite项目并安装依赖：**
+    如果您是首次设置或 `package.json` 缺失/不完整：
+    *   确保已安装 Node.js 和 npm (或 Yarn/pnpm)。
+    *   可能需要运行 `npm create vite@latest . -- --template react-ts` (或您包管理器的相应命令)，请注意如果源文件已存在，避免覆盖它们。
+    *   安装核心依赖：
+        ```bash
+        npm install antd react-router-dom@6 axios zustand react-hook-form react-markdown remark-gfm rehype-highlight
+        npm install @ant-design/icons --save
+        # npm install dayjs # 如果需要日期处理
+        ```
+        （如需更完整的依赖列表，可参考计划或 `bor_admin_frontend` 的 `package.json`。）
+3.  **（初始化和安装依赖后）创建环境文件：**
+    *   在 `bor_app_frontend` 根目录下创建 `.env.development` 文件。
+    *   添加您的API基地址，例如：`VITE_API_BASE_URL=/api/v1`
+4.  **运行开发服务器：**
+    ```bash
+    npm run dev
+    # 或 yarn dev / pnpm dev
+    ```
+    应用前端通常会在 `http://localhost:端口号/` (Vite默认通常是5173，请确保与管理前端或后端端口不同) 启动。
+
+**未来规划：**
+后续开发将专注于构建面向用户的核心功能，包括聊天界面、RAG互动、用户设置等，以达到并最终超越Svelte版本的功能。

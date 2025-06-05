@@ -8,7 +8,8 @@ import SystemSettingsPage from '../pages/settings/SystemSettingsPage';
 import PrivateRoute from '../components/auth/PrivateRoute';
 import ExternalRagPage from '../pages/rag/ExternalRagPage';
 import ModelManagementPage from '../pages/models/ModelManagementPage';
-import KnowledgeBasePage from '../pages/knowledge/KnowledgeBasePage'; // Import the new knowledge base page
+import KnowledgeBasePage from '../pages/knowledge/KnowledgeBasePage';
+import ServerInfoPage from '../pages/settings/ServerInfoPage'; // Import ServerInfoPage
 // Placeholder for other pages if needed by new menu items
 
 

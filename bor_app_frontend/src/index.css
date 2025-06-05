@@ -1,0 +1,56 @@
+/* bor_app_frontend/src/index.css */
+/* Replace with your project's global base styles */
+
+/* Example: If using Tailwind CSS, this is where you'd put Tailwind directives */
+/*
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*/
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5; /* A common default page background for AntD apps */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Ensure root and AntD layout take full height for sticky footers etc. */
+#root,
+#root > .ant-layout { /* If App directly renders an AntD Layout */
+  min-height: 100vh;
+}
+
+/* Or if App has a wrapper div before AntD Layout */
+/* html, body, #root, #root > div {
+  height: 100%;
+} */
+
+
+/* Custom scrollbar styles (optional, consistent with admin frontend) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

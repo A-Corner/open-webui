@@ -61,14 +61,33 @@ const ConfigFormItem: React.FC<{ configKey: string; configValue: ConfigValue }> 
 
   // Provide a more user-friendly label if possible
   const label = configKey.split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' > ');
+  const isSensitiveField = configKey.includes('secret') || configKey.includes('password') || configKey.includes('token') || configKey.includes('key');
+  const isOAuthOrLDAPKey = (configKey.startsWith('oauth.') || configKey.startsWith('ldap.')) && isSensitiveField;
 
-  if (configValue === "********") { // Masked sensitive value
-    return (
-      <Form.Item label={label} key={configKey} help="This value is sensitive and not displayed. Update to set a new value.">
-        <Input.Password placeholder="Enter new value to update" />
-      </Form.Item>
-    );
+
+  if (configValue === "********" || isOAuthOrLDAPKey) {
+    // Masked sensitive value from backend OR specific OAuth/LDAP keys that should not be edited here.
+    // For PersistentConfig items that are sensitive and *can* be updated via API (e.g. an API key for a service if that's a PC item),
+    // they would use controlType 'password'.
+    // This specific block is for YAML/env-only sensitive fields if they were to be displayed as read-only/masked.
+    // The current GET /system-configs already masks most PC items with "key", "secret" etc.
+    // This primarily makes OAuth/LDAP client secrets explicitly read-only with guidance.
+    let helpText = "This value is sensitive. Update to set a new value if applicable via API.";
+    if (isOAuthOrLDAPKey && configKey !== 'auth.jwt_secret_key') { // JWT secret is usually not a PC, but set via env.
+         helpText = "Configure this sensitive value in settings_config.yaml or via environment variables on the server.";
+         return (
+            <Form.Item label={label} key={configKey} help={helpText}>
+              <Input value="********" disabled placeholder="Server-side configuration" />
+            </Form.Item>
+          );
+    }
+    // For other "********" values that *are* updatable PersistentConfigs (e.g. a service API key)
+    // they should fall through to 'password' type input.
+    // The getControlType already handles this via `key.toLowerCase().includes('password')`.
+    // So, this explicit check for "********" might only be for non-PC, YAML-only values if they were listed.
+    // Given current get_manageable_configs, most sensitive PC items are already masked.
   }
+
 
   switch (controlType) {
     case 'switch':
@@ -85,7 +104,7 @@ const ConfigFormItem: React.FC<{ configKey: string; configValue: ConfigValue }> 
       );
     case 'tags': // For arrays of simple strings
       return (
-        <Form.Item label={label} key={configKey} help="Enter comma-separated values or use Select tags if more complex.">
+        <Form.Item label={label} key={configKey} help="Enter values separated by comma or by pressing Enter.">
            <Controller
             name={configKey}
             control={control}
@@ -96,8 +115,9 @@ const ConfigFormItem: React.FC<{ configKey: string; configValue: ConfigValue }> 
                 placeholder="Add values"
                 {...field}
                 tokenSeparators={[',']}
-                value={Array.isArray(field.value) ? field.value : (typeof field.value === 'string' && field.value ? field.value.split(',') : [])}
-                onChange={(val) => field.onChange(val)}
+                // Ensure value is always an array for Select mode="tags"
+                value={Array.isArray(field.value) ? field.value : (typeof field.value === 'string' && field.value ? field.value.split(',').map(s=>s.trim()).filter(s=>s) : [])}
+                onChange={(val) => field.onChange(val.map(s=>s.trim()).filter(s=>s))} // Trim and filter empty strings
               />
             )}
           />
@@ -114,16 +134,18 @@ const ConfigFormItem: React.FC<{ configKey: string; configValue: ConfigValue }> 
               <TextArea
                 {...field}
                 rows={controlType === 'textarea_long' ? 6 : 3}
-                placeholder={typeof configValue === 'object' ? JSON.stringify(configValue, null, 2) : String(configValue)}
+                placeholder={typeof configValue === 'object' && configValue !== null ? JSON.stringify(configValue, null, 2) : String(configValue ?? '')}
               />
             )}
           />
         </Form.Item>
       );
-    case 'password':
+    case 'password': // For updatable sensitive PersistentConfig values
        return (
-        <Form.Item label={label} key={configKey} help="Sensitive value. Enter new value to update.">
-          <Controller name={configKey} control={control} render={({ field }) => <Input.Password {...field} placeholder="Enter new value to update" />} />
+        <Form.Item label={label} key={configKey} help="Sensitive value. Enter a new value to update, or leave blank to keep unchanged.">
+          <Controller name={configKey} control={control}
+            defaultValue="" // Important for controlled password inputs
+            render={({ field }) => <Input.Password {...field} placeholder="Enter new value to update" />} />
         </Form.Item>
       );
     default: // text

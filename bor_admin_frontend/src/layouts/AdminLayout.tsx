@@ -13,7 +13,8 @@ import {
   CloudServerOutlined,
   ApiOutlined,
   AppstoreAddOutlined,
-  ReadOutlined, // Icon for Knowledge Base
+  ReadOutlined,
+  InfoCircleOutlined, // Icon for Server Info
   // Add other icons as needed for menu items
 } from '@ant-design/icons';
 import { useAuthStore } from '../store/authStore'; // Adjust path
@@ -74,6 +75,11 @@ const AdminLayout: React.FC = () => {
         {
           key: '/settings/system-configs',
           label: <Link to="/settings/system-configs">System Configs</Link>,
+        },
+        {
+          key: '/settings/server-info', // New link for Server Info
+          icon: <InfoCircleOutlined />, // Optional: icon for sub-menu item
+          label: <Link to="/settings/server-info">Server Info</Link>,
         },
       ],
     },
