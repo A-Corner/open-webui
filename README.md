@@ -160,15 +160,18 @@ Alongside the new admin interface, a brand new **application frontend** is also 
 
 **Purpose:** This frontend aims to eventually replace the current Svelte-based user-facing application. It will provide the main interface for users to interact with chat functionalities, RAG features, manage their profiles, and other application-specific settings.
 
-**Current Status & Features (Initial Framework):**
-The foundational framework for the `bor_app_frontend` has been established. This includes:
-*   A well-defined project structure using Vite and TypeScript.
-*   Core routing capabilities powered by React Router.
-*   An API client (Axios) pre-configured for communication with the BoR backend (targeting existing V1 application APIs like `/api/v1/users/me`, `/api/v1/chats`, etc.).
-*   A Zustand store (`userSessionStore`) for managing user sessions, including authentication state and token persistence via localStorage.
-*   Basic application layout (`MainAppLayout.tsx`) and a login page (`LoginPage.tsx`) using Ant Design components.
+**Current Status & Features:**
+*   **Core Chat Interface:** "Fully functional chat interface with message sending, receiving (streaming & non-streaming), Markdown rendering, code block highlighting, and copy-to-clipboard for messages."
+*   **Session Management:** "Comprehensive session management via a collapsible sidebar: create new chats, list history, switch between sessions, and delete sessions. Active session is reflected in URL and persisted."
+*   **RAG Context Selection:** "Users can select available Knowledge Base collections via a 'Knowledge Picker' integrated into the chat input to provide context for RAG-enhanced queries."
+*   **Model & Parameter Control:** "In-chat selection of language models and adjustment of parameters like temperature, with settings persisted per session."
+*   **User Personalization:** "Theme customization (light/dark/system with persistence) and a basic user profile page (view/edit name, email, avatar - backend-dependent for updates)."
+*   **Authentication:** "Robust login, logout, and session restoration mécanisme using JWT tokens stored in localStorage."
+*   **Testing:** "Core components, stores, and API services are covered by unit and integration tests using Vitest and React Testing Library."
+*   **Overall Status:** "The React App Frontend has achieved a near-MVP (Minimum Viable Product) state for core chat functionalities."
 
-This initial setup provides the essential building blocks for developing specific user-facing features such as chat interfaces, document interactions, RAG querying, user settings management, and more.
+![BoR App Chat Interface](images/bor-app-chat-interface.png "BoR App Chat Interface with Model & Knowledge Selection")
+*Caption: The main chat interface of the new BoR App Frontend, showcasing model selection, RAG knowledge picker, and message display. (Note: Screenshot is a placeholder)*
 
 **How to Run (App Frontend for Development):**
 
@@ -199,8 +202,12 @@ This initial setup provides the essential building blocks for developing specifi
     ```
     The application frontend will typically be available at `http://localhost:PORT_OF_REACT_APP/` (Vite's default is often 5173; ensure it's different from the admin frontend or backend if running simultaneously). It connects to the same backend API as the main/admin applications.
 
-**Future Scope:**
-Future development will focus on building out the core user-facing features, including chat interfaces, RAG interactions, user settings, and more, to achieve parity with and eventually supersede the Svelte application.
+**Future Scope / Next Steps:**
+*   "Immediate next steps include: "
+    *   "Implementing the display of RAG-retrieved sources within chat messages to complete the RAG query cycle."
+    *   "Close collaboration with backend development to ensure full alignment and stability of V1 application APIs, especially for session initiation, streaming protocols, and error handling."
+    *   "Further enhancements to error handling and overall user experience based on testing and feedback."
+*   "Longer-term goals involve adding advanced features, further performance optimizations, and eventually achieving full parity with (and superseding) the original Svelte-based application."
 
 ## 🔗 Also Check Out BoR Community!
 
@@ -407,7 +414,15 @@ BoR is based on software originally created by Timothy Jaeryang Baek. Let's make
     - **当前功能:** 已包含通过新V2 Admin API实现的完整用户管理、系统配置、外部RAG服务管理，以及初步的模型和知识库管理功能。
     - **未来规划:** 其他管理模块和现有功能的增强将持续进行。
 - ✨ **全新的基于React的应用前端 (开发中)**: 一个现代化的、独立的面向用户的应用前端，同样使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建。其目标是最终取代当前基于Svelte的应用，提供聊天、RAG互动、用户配置等功能。
-    - **当前状态:** 已完成基础框架搭建，包括项目结构、核心路由、API客户端、Zustand会话管理和基础布局。
+    - **当前状态与特性：**
+        - **核心聊天界面：** 功能完整的聊天界面，支持消息收发（流式与非流式）、Markdown渲染、代码高亮、消息复制。
+        - **会话管理：** 通过可伸缩侧边栏进行全面的会话管理：新建、列表、切换、删除。活动会话与URL同步并持久化。
+        - **RAG上下文选择：** 用户可通过聊天输入区的“知识选择器”选择知识库集合，为RAG增强查询提供上下文。
+        - **模型与参数控制：** 聊天中可选择语言模型并调整温度等参数，设置按会话持久化。
+        - **用户个性化：** 主题定制（明亮/暗黑/系统，带持久化）和基本的用户资料页面（查看/编辑姓名、邮箱、头像 - 更新依赖后端）。
+        - **认证：** 健全的登录、注销、会话恢复机制（使用localStorage存储JWT）。
+        - **测试：** 核心组件、Store和API服务已覆盖单元/集成测试。
+        - **整体状态：** React应用前端的核心聊天功能已接近MVP（最小可行产品）状态。
     - **未来规划:** 后续将集中开发面向用户的核心功能。
 
 (此处仅为示例，完整的中文翻译会很长，其他特性条目也应相应翻译)
@@ -507,15 +522,18 @@ React 管理前端在开发模式下通常独立运行。
 
 **目的：** 此前端旨在最终取代当前基于Svelte的用户界面，为用户提供聊天、RAG互动、个人资料管理等功能。
 
-**当前状态与特性（初始框架）：**
-`bor_app_frontend` 的基础框架已经搭建完成，包括：
-*   基于 Vite 和 TypeScript 的项目结构。
-*   使用 React Router 实现的核心路由功能。
-*   已配置用于后端通信的API客户端 (Axios) (目标为现有的V1应用API)。
-*   用于用户会话管理的 Zustand store (通过localStorage持久化token)。
-*   使用 Ant Design 实现的基础应用布局和登录页面。
+**当前状态与特性：**
+*   **核心聊天界面：** 功能完整的聊天界面，支持消息收发（流式与非流式）、Markdown渲染、代码高亮、消息复制。
+*   **会话管理：** 通过可伸缩侧边栏进行全面的会话管理：新建、列表、切换、删除。活动会话与URL同步并持久化。
+*   **RAG上下文选择：** 用户可通过聊天输入区的“知识选择器”选择知识库集合，为RAG增强查询提供上下文。
+*   **模型与参数控制：** 聊天中可选择语言模型并调整温度等参数，设置按会话持久化。
+*   **用户个性化：** 主题定制（明亮/暗黑/系统，带持久化）和基本的用户资料页面（查看/编辑姓名、邮箱、头像 - 更新依赖后端）。
+*   **认证：** 健全的登录、注销、会话恢复机制（使用localStorage存储JWT）。
+*   **测试：** 核心组件、Store和API服务已覆盖单元/集成测试。
+*   **整体状态：** React应用前端的核心聊天功能已接近MVP（最小可行产品）状态。
 
-这个初始设置为后续开发具体应用功能（如聊天界面、文档交互、RAG查询等）奠定了基础。
+![BoR 应用聊天界面](images/bor-app-chat-interface.png "BoR 应用聊天界面（含模型与知识选择器）")
+*说明：新的 BoR 应用前端主聊天界面，展示了模型选择、RAG知识选择器和消息显示。(注意：截图为占位符)*
 
 **如何运行（应用前端开发）：**
 
@@ -546,5 +564,9 @@ React 管理前端在开发模式下通常独立运行。
     ```
     应用前端通常会在 `http://localhost:端口号/` (Vite默认通常是5173，请确保与管理前端或后端端口不同) 启动。
 
-**未来规划：**
-后续开发将专注于构建面向用户的核心功能，包括聊天界面、RAG互动、用户设置等，以达到并最终超越Svelte版本的功能。
+**未来规划/下一步：**
+*   “近期的主要工作包括：”
+    *   “在聊天消息中实现RAG检索来源的展示，以完成RAG查询的闭环。”
+    *   “与后端开发紧密协作，确保V1应用API在会话初始化、流式协议、错误处理等方面的完全对齐和稳定性。”
+    *   “基于测试和反馈，进一步增强错误处理和整体用户体验。”
+*   “长期目标包括添加高级功能，进一步的性能优化，并最终完全达到并超越原Svelte应用的功能。”

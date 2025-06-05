@@ -1,74 +1,95 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { ConfigProvider, Spin, theme as antdTheme } from 'antd'; // Ant Design ConfigProvider
-import router from './router';
+import { ConfigProvider, Spin, theme as antdTheme } from 'antd';
+import { appRouter } from './router'; // Ensure router is exported as appRouter
 import { useUserSessionStore } from './store/userSessionStore';
-// import { useBrandingStore } from './store/brandingStore'; // For app branding if needed for AntD theme
-
-// Global Loading Indicator for app initialization/session loading
-const AppLoadingIndicator: React.FC = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-    {/* Placeholder for App Logo using branding store */}
-    {/* <img src={useBrandingStore.getState().config?.logo_path || '/static/logo.png'} alt="Loading Logo" style={{height: '80px', marginBottom: '20px'}} /> */}
-    <Spin size="large" tip="Loading Application..." />
-  </div>
-);
+import { useSessionStore } from './store/sessionStore';
+import { useUserSettingsStore } from './store/userSettingsStore'; // Import user settings store
+import './index.css';
 
 const App: React.FC = () => {
-  const { loadSessionAction, token } = useUserSessionStore((state) => ({
-    loadSessionAction: state.loadSessionAction,
-    token: state.token, // Access token to see if an initial load attempt is relevant
-  }));
+  const loadUserSession = useUserSessionStore((state) => state.loadSessionAction);
+  const userIsAuthenticated = useUserSessionStore((state) => state.isAuthenticated);
+  const userSessionIsLoading = useUserSessionStore((state) => state.isLoading);
 
-  const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const fetchAppSessions = useSessionStore(state => state.fetchSessions);
+  const sessionsAreLoading = useSessionStore(state => state.isLoading);
 
-  // const { config: brandingConfig, fetchConfig: fetchBrandingConfig } = useBrandingStore();
+  // Theme management from userSettingsStore
+  const currentThemeSetting = useUserSettingsStore((state) => state.theme);
+  // Default to light theme algorithm initially, will be updated by useEffect
+  const [effectiveThemeAlgorithm, setEffectiveThemeAlgorithm] = useState(antdTheme.defaultAlgorithm);
 
   useEffect(() => {
-    const initializeAppSession = async () => {
-      // Fetch branding config first if it influences anything critical early on
-      // await fetchBrandingConfig(); // Assuming brandingStore also has fetchConfig
+    const initializeApp = async () => {
+      await loadUserSession();
+    };
+    initializeApp();
+  }, [loadUserSession]);
 
-      // Then try to load user session
-      try {
-        await loadSessionAction();
-      } catch (error) {
-        console.error("App initialization: loadSessionAction failed.", error);
-        // Error handled in store, typically results in isAuthenticated: false
-      } finally {
-        setIsSessionLoading(false);
+  useEffect(() => {
+    if (!userSessionIsLoading && userIsAuthenticated) {
+      fetchAppSessions();
+    }
+  }, [userSessionIsLoading, userIsAuthenticated, fetchAppSessions]);
+
+  // Apply and manage theme based on user settings and system preference
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (currentThemeSetting === 'dark' || (currentThemeSetting === 'system' && prefersDark)) {
+      setEffectiveThemeAlgorithm(antdTheme.darkAlgorithm);
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      setEffectiveThemeAlgorithm(antdTheme.defaultAlgorithm); // Light theme
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+  }, [currentThemeSetting]); // Re-run when user changes theme setting
+
+  // Listen for system theme changes to update if 'system' theme is selected
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Only update if current setting is 'system'
+      if (useUserSettingsStore.getState().theme === 'system') {
+        const root = window.document.documentElement;
+        if (e.matches) {
+          setEffectiveThemeAlgorithm(antdTheme.darkAlgorithm);
+          root.classList.add('dark');
+          root.classList.remove('light');
+        } else {
+          setEffectiveThemeAlgorithm(antdTheme.defaultAlgorithm);
+          root.classList.add('light');
+          root.classList.remove('dark');
+        }
       }
     };
 
-    initializeAppSession();
-  }, [loadSessionAction /*, fetchBrandingConfig */]); // Add other init actions if needed
-
-  // Example: Ant Design theme customization based on branding config
-  // const { token: antdInternalToken } = antdTheme.useToken(); // If using inside ConfigProvider for dynamic changes
-  // const appAntdTheme = React.useMemo(() => {
-  //   const primaryColor = brandingConfig?.ui_theme?.primary_color;
-  //   const fontFamily = brandingConfig?.ui_theme?.font_family;
-  //   const newTheme = { ...antdInternalToken }; // Start with current theme tokens
-  //   if (primaryColor) newTheme.colorPrimary = primaryColor;
-  //   if (fontFamily) newTheme.fontFamily = fontFamily;
-
-  //   return { token: newTheme };
-  // }, [brandingConfig, antdInternalToken]);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []); // Empty dependency array ensures this runs once to attach/detach listener
 
 
-  if (isSessionLoading) {
-    return <AppLoadingIndicator />;
+  if (userSessionIsLoading || (userIsAuthenticated && sessionsAreLoading)) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" tip="应用加载中..." />
+      </div>
+    );
   }
 
   return (
-    <React.StrictMode>
-      {/* <ConfigProvider theme={appAntdTheme}> */}
-      <ConfigProvider> {/* Using default AntD theme for now */}
-        <Suspense fallback={<AppLoadingIndicator />}> {/* For route-based code splitting */}
-          <RouterProvider router={router} />
-        </Suspense>
-      </ConfigProvider>
-    </React.StrictMode>
+    <ConfigProvider
+      theme={{
+        algorithm: effectiveThemeAlgorithm,
+        // token: { colorPrimary: '#00b96b' } // Example: customize primary color
+      }}
+    >
+      <RouterProvider router={appRouter} />
+    </ConfigProvider>
   );
 };
 

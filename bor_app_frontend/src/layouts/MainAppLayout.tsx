@@ -7,19 +7,22 @@ import {
   UserOutlined,    // For Profile / User menu
   SettingOutlined, // For User Settings
   LogoutOutlined,  // For Logout
+  ProfileOutlined, // Added for clarity, though UserOutlined might be used for profile link
+  BgColorsOutlined, // For Appearance Settings
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   // Potentially a custom logo component or direct img tag
 } from '@ant-design/icons';
-import { useUserSessionStore } from '../store/userSessionStore'; // Adjust path
-// import { useBrandingStore } from '../store/brandingStore'; // For app_name, logo etc. from branding
+import { useUserSessionStore } from '../store/userSessionStore';
+// import { useBrandingStore } from '../store/brandingStore';
+import SessionList from '../components/sidebar/SessionList'; // Import SessionList
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Text } = Typography;
-// const { useToken } = antdTheme; // For theme tokens
+// const { useToken } = antdTheme;
 
 const MainAppLayout: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // Sider collapse state
   const { user, logoutAction } = useUserSessionStore((state) => ({
     user: state.user,
     logoutAction: state.logoutAction,
@@ -30,9 +33,8 @@ const MainAppLayout: React.FC = () => {
   // const { config: brandingConfig } = useBrandingStore();
   // const appName = brandingConfig?.app_name || "BoR App";
   // const logoPath = brandingConfig?.logo_path || "/static/default_logo_app.png";
-  // For now, hardcode app name for placeholder
-  const appName = "BoR Application";
-  const logoPath = "/static/logo.png"; // Placeholder
+  const appName = "BoR Application"; // Placeholder
+  // const logoPath = "/static/logo.png"; // Placeholder for logo in header if not using text
 
 
   const handleLogout = async () => {
@@ -41,34 +43,50 @@ const MainAppLayout: React.FC = () => {
   };
 
   const userMenuItems: MenuProps['items'] = [
-    { key: 'profile', label: <Link to="/profile">Profile</Link>, icon: <UserOutlined /> },
-    { key: 'settings', label: <Link to="/settings">Settings</Link>, icon: <SettingOutlined /> },
+    { key: 'profile', label: <Link to="/profile">个人资料</Link>, icon: <ProfileOutlined /> }, // Updated label and icon
+    { key: 'appearance', label: <Link to="/settings/appearance">外观设置</Link>, icon: <BgColorsOutlined /> }, // New item for appearance
+    // { key: 'settings', label: <Link to="/settings">General Settings</Link>, icon: <SettingOutlined /> }, // Example if a general settings page is also needed
     { type: 'divider' },
-    { key: 'logout', label: 'Logout', icon: <LogoutOutlined />, onClick: handleLogout },
+    { key: 'logout', label: '退出登录', icon: <LogoutOutlined />, onClick: handleLogout }, // Updated label
   ];
 
-  const siderMenuItems: MenuProps['items'] = [
-    {
-      key: '/chat',
-      icon: <MessageOutlined />,
-      label: <Link to="/chat">Chat</Link>,
-    },
-    // Add other top-level navigation items here if needed
-  ];
+  // Main navigation items (if any besides chat sessions) could go into a separate Menu
+  // For this layout, Sider will primarily be for SessionList.
+  // Example if other nav items were needed:
+  // const mainNavItems: MenuProps['items'] = [
+  //   { key: '/chat', icon: <MessageOutlined />, label: 'Chat' },
+  //   { key: '/some-other-feature', icon: <SomeIcon />, label: 'Other Feature'},
+  // ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <div style={{ height: '32px', margin: '16px', background: 'rgba(255, 255, 255, 0.2)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
-          {/* <img src={logoPath} alt="Logo" style={{ height: '100%', display: collapsed ? 'none': 'inline' }} /> */}
-          <Text style={{color: 'white', fontSize: collapsed? 'small' : 'medium', whiteSpace: 'nowrap'}}>
-            {collapsed ? appName.substring(0,1) : appName}
-          </Text>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+        width={280} // Adjust width as needed for session items
+        theme="light" // Or dark, depending on desired theme for session list
+        style={{ borderRight: '1px solid #f0f0f0'}} // Example border
+      >
+        <div
+          style={{
+            height: '32px',
+            margin: '16px',
+            // background: 'rgba(0, 0, 0, 0.1)',
+            display:'flex',
+            alignItems:'center',
+            justifyContent: collapsed ? 'center': 'flex-start',
+            overflow:'hidden'
+          }}
+        >
+          {/* Placeholder for logo - can be part of SessionList or here */}
+          {/* <img src={logoPath} alt="Logo" style={{ height: '100%', marginRight: collapsed ? 0 : 8 }} /> */}
+          {!collapsed && <Text strong style={{ whiteSpace: 'nowrap', fontSize:'large' }}>{appName}</Text>}
         </div>
-        <Menu theme="dark" defaultSelectedKeys={['/chat']} mode="inline" items={siderMenuItems} />
+        <SessionList /> {/* SessionList component now populates the Sider */}
       </Sider>
       <Layout>
-        <Header style={{ padding: '0 16px', background: '#fff' /*antdDesignToken.colorBgContainer*/ }}>
+        <Header style={{ padding: '0 16px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
             <Button
               type="text"
