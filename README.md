@@ -1,5 +1,6 @@
 # BoR 👋
 
+<!-- GitHub Badges -->
 ![GitHub stars](https://img.shields.io/github/stars/BoRDev/BoR?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/BoRDev/BoR?style=social)
 ![GitHub watchers](https://img.shields.io/github/watchers/BoRDev/BoR?style=social)
@@ -8,565 +9,397 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/BoRDev/BoR)
 ![GitHub last commit](https://img.shields.io/github/last-commit/BoRDev/BoR?color=red)
 ![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FBoRDev%2FBoR&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)
-<!-- Removed Discord badge, replace with BoR's if available -->
-<!-- Removed Sponsor badge -->
 
-**BoR is an [extensible](https://docs.bor.com/features/plugin/), feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.** It supports various LLM runners like **Ollama** and **OpenAI-compatible APIs**, with **built-in inference engine** for RAG, making it a **powerful AI deployment solution**.
+**BoR 是一款功能丰富、用户友好、可扩展的自托管人工智能平台，专为完全离线操作而设计。**
+(BoR is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.)
+
+---
+
+## 📖 BoR (原 Open-WebUI) 简介
+
+BoR (原名 Open-WebUI) 是一个开源的自托管AI平台，致力于为用户提供本地化、可定制且功能强大的大语言模型（LLM）交互体验。我们的目标是打造一个集聊天、检索增强生成（RAG）、模型管理、用户管理和个性化设置为一体的综合性AI工作台。
+
+**核心价值：**
+*   **数据隐私与控制：** 完全自托管，确保数据安全与隐私。
+*   **高度可扩展：** 支持多种LLM运行器（Ollama, OpenAI兼容API等），并提供插件框架。
+*   **用户友好：** 简洁直观的界面设计，注重用户体验。
+*   **离线优先：** 核心功能支持完全离线运行。
+*   **社区驱动：** 积极听取社区反馈，持续迭代与创新。
+
+---
+
+## ✨ 主要特性
+
+*   🚀 **轻松设置**: 通过 Docker 或 Kubernetes (kubectl, kustomize 或 helm) 无缝安装，支持 `:ollama` 和 `:cuda` 标签的镜像。
+*   🤝 **多LLM后端支持**:
+    *   轻松集成 **Ollama**，支持其所有模型。
+    *   支持连接兼容 **OpenAI API** 的服务端点，如 LMStudio, Groq, Mistral AI, OpenRouter 等。
+*   📚 **检索增强生成 (RAG):**
+    *   内置RAG引擎，支持从文档（PDF, TXT, MD等）中提取内容并作为聊天上下文。
+    *   支持通过 `#` 命令快速指定知识库集合或文档进行查询。
+    *   支持通过URL加载网页内容作为RAG数据源。
+    *   集成网页搜索功能 (SearXNG, Google PSE, Brave Search等)，将搜索结果注入聊天。
+*   💬 **核心聊天功能:**
+    *   完整的聊天界面，支持消息收发（流式与非流式）。
+    *   Markdown 及 LaTeX 渲染，代码块高亮。
+    *   消息操作：复制，（未来支持）编辑、删除。
+    *   多模态输入占位（如图片上传，功能开发中）。
+*   🛠️ **模型与参数控制:**
+    *   聊天中动态选择语言模型。
+    *   调整温度（Temperature）等模型参数。
+    *   模型与参数设置可按会话持久化。
+*   🔄 **会话管理:**
+    *   通过可伸缩侧边栏进行全面的会话管理：新建、历史列表、切换、删除。
+    *   活动会话状态与URL同步并持久化。
+*   🎨 **用户个性化:**
+    *   主题定制（明亮/暗黑/跟随系统），偏好设置持久化。
+    *   用户资料页面（查看/编辑姓名、邮箱、头像 - 头像和部分信息更新依赖后端API支持）。
+*   🔐 **用户与权限管理:**
+    *   基于角色的访问控制 (RBAC)。
+    *   管理员可通过独立的React管理后台进行用户创建、管理、权限分配。
+    *   支持通过 `settings_config.yaml` 设置默认用户角色和权限细节。
+*   ⚙️ **集中化配置 (`settings_config.yaml`):**
+    *   通过单一 `settings_config.yaml` 文件简化部署和核心服务配置。
+    *   可配置内容包括：服务端口、JWT密钥、默认主题、Ollama及OpenAI兼容API端点、RAG参数（模型、块大小等）、网页搜索API密钥、代码解释器设置、默认用户权限等。
+*   🖼️ **图像生成集成**: 支持 AUTOMATIC1111、ComfyUI (本地) 及 OpenAI DALL-E (外部) 等。
+*   🗣️ **语音交互**: 支持语音输入 (STT) 和语音输出 (TTS)。
+*   📱 **响应式设计与PWA**: 适配桌面与移动设备，支持PWA。
+*   🌐 **多语言支持 (i18n)**: 支持多种界面语言，欢迎社区贡献翻译。
+*   🔧 **模型构建器**: Web UI内创建Ollama Modelfile。
+*   🐍 **Python函数调用工具**: 内置代码编辑器，支持自定义Python工具函数与LLM集成。
+*   ➕ **持续更新与社区支持**: 定期更新，活跃的社区支持。
+
+<details>
+<summary>✨ Key Features (English Summary)</summary>
+
+*   🚀 **Effortless Setup**: Docker or Kubernetes.
+*   🤝 **Multiple LLM Backends**: Ollama, OpenAI-compatible APIs (LMStudio, Groq, Mistral AI, etc.).
+*   📚 **Retrieval Augmented Generation (RAG):** Built-in engine, document upload (PDF, TXT, MD), query with `#collection_name`, web page loading via URL, web search integration.
+*   💬 **Core Chat Features:** Streaming/non-streaming messages, Markdown/LaTeX, code highlighting, copy messages, (WIP: edit/delete), multimodal input placeholder.
+*   🛠️ **Model & Parameter Control:** In-chat model selection, temperature adjustment, persisted per session.
+*   🔄 **Session Management:** Collapsible sidebar for new/list/switch/delete chats, URL sync, persisted.
+*   🎨 **User Personalization:** Theme (light/dark/system), profile page (view/edit - backend dependent for updates).
+*   🔐 **User & Permission Management:** RBAC, dedicated React admin UI, default roles via `settings_config.yaml`.
+*   ⚙️ **Centralized Configuration (`settings_config.yaml`):** Ports, JWT, themes, LLM endpoints, RAG settings, search APIs, code interpreter, default permissions.
+*   🖼️ **Image Generation:** AUTOMATIC1111, ComfyUI, DALL-E.
+*   🗣️ **Voice Interaction:** STT/TTS.
+*   📱 **Responsive Design & PWA**.
+*   🌐 **Multilingual Support (i18n)**.
+*   🔧 **Model Builder**: Create Ollama Modelfiles in UI.
+*   🐍 **Python Function Calling Tool**.
+*   ➕ **Continuous Updates & Community Support**.
+</details>
+
+---
+
+## 🛠️ 技术栈 (Tech Stack)
+
+*   **后端 (Backend):** Python (FastAPI), SQLAlchemy, Alembic
+*   **原用户前端 (Svelte - 维护模式):** SvelteKit, TypeScript
+*   **React管理前端 (Admin Frontend):** React, Vite, Ant Design, Zustand, TypeScript
+*   **React应用前端 (App Frontend):** React, Vite, Ant Design, Zustand, TypeScript, React Router
+*   **数据库 (Database):** SQLite (默认), PostgreSQL
+*   **容器化 (Containerization):** Docker, Kubernetes (Kustomize, Helm)
+
+---
+
+## 🖼️ 截图展示 (Screenshots - 中文界面)
+
+*未来将在此处替换为中文界面的实际截图。*
+
+1.  **BoR 应用主聊天界面 (含模型与知识库选择器):**
+    `![BoR应用聊天界面截图](images/bor-app-chat-interface_zh.png "BoR应用聊天界面（中文），展示模型选择、RAG知识选择器和消息区")`
+    *说明：新的 BoR 应用前端主聊天界面，清晰展示模型选择下拉菜单、知识库选择器、聊天历史记录区以及消息输入区。*
 
-![BoR Demo](./demo_bor.gif) <!-- Assuming demo_bor.gif exists or this link will be updated -->
+2.  **BoR 应用会话管理侧边栏:**
+    `![BoR应用会话管理侧边栏截图](images/bor-app-sidebar_zh.png "BoR应用会话管理侧边栏（中文）")`
+    *说明：展示了可伸缩的会话历史列表侧边栏，包含新建聊天按钮、会话搜索（如果实现）和会话条目。*
 
-> [!TIP]  
-> **Looking for an [Enterprise Plan](https://docs.bor.com/enterprise)?** – **[Speak with Our Sales Team Today!](mailto:sales@bor.com)**
->
-> Get **enhanced capabilities**, including **custom theming and branding**, **Service Level Agreement (SLA) support**, **Long-Term Support (LTS) versions**, and **more!**
+3.  **BoR 应用用户个性化设置 - 外观主题选择:**
+    `![BoR应用外观设置截图](images/bor-app-appearance-settings_zh.png "BoR应用外观设置页面（中文）")`
+    *说明：用户在设置中选择“明亮”、“暗黑”或“跟随系统”主题的界面。*
 
-For more information, be sure to check out our [BoR Documentation](https://docs.bor.com/).
+4.  **BoR 应用用户个性化设置 - 个人资料页面:**
+    `![BoR应用个人资料页截图](images/bor-app-profile-page_zh.png "BoR应用个人资料页面（中文）")`
+    *说明：用户查看和编辑其用户名、邮箱及更换头像的界面。*
 
-## Key Features of BoR ⭐
+5.  **BoR React管理后台 - 用户管理:**
+    `![BoR管理后台用户管理截图](images/bor-admin-user-management_zh.png "BoR管理后台用户管理界面（中文）")`
+    *说明：管理员在新的React管理后台中管理用户列表、编辑用户角色和状态的界面。*
 
-- 🚀 **Effortless Setup**: Install seamlessly using Docker or Kubernetes (kubectl, kustomize or helm) for a hassle-free experience with support for both `:ollama` and `:cuda` tagged images.
+6.  **BoR React管理后台 - 系统配置:**
+    `![BoR管理后台系统配置截图](images/bor-admin-system-config_zh.png "BoR管理后台系统配置界面（中文）")`
+    *说明：管理员在React管理后台中配置各项系统参数的界面，如UI设置、认证设置等。*
 
-- 🤝 **Ollama/OpenAI API Integration**: Effortlessly integrate OpenAI-compatible APIs for versatile conversations alongside Ollama models. Customize the OpenAI API URL to link with **LMStudio, GroqCloud, Mistral, OpenRouter, and more**.
+*(请注意：以上所有引用的截图均为占位符，需要实际生成中文界面的截图并替换。)*
 
-- 🛡️ **Granular Permissions and User Groups**: By allowing administrators to create detailed user roles and permissions, we ensure a secure user environment. This granularity not only enhances security but also allows for customized user experiences, fostering a sense of ownership and responsibility amongst users.
+---
 
-- 📱 **Responsive Design**: Enjoy a seamless experience across Desktop PC, Laptop, and Mobile devices.
+## 🚀 快速开始 / 安装部署
 
-- 📱 **Progressive Web App (PWA) for Mobile**: Enjoy a native app-like experience on your mobile device with our PWA, providing offline access on localhost and a seamless user interface.
+我们推荐使用 Docker 进行快速部署。对于本地开发或更复杂的部署场景，也提供了手动安装选项。
 
-- ✒️🔢 **Full Markdown and LaTeX Support**: Elevate your LLM experience with comprehensive Markdown and LaTeX capabilities for enriched interaction.
+### 核心配置: `settings_config.yaml`
+在开始任何部署之前，请了解 `settings_config.yaml` 文件。它是BoR后端的中央配置文件，用于管理服务端口、品牌化、LLM服务端点、RAG参数、数据库连接等。
+1.  复制项目根目录下的 `settings_config.yaml.example` 为 `settings_config.yaml`。
+2.  根据您的需求修改此文件。**至少，您需要配置Ollama或兼容OpenAI的API端点才能开始聊天。**
+3.  确保此文件被正确挂载到后端服务的数据目录中（例如，Docker部署时的Volume映射，或本地运行时位于 `DATA_DIR` 指定的路径下）。
 
-- 🎤📹 **Hands-Free Voice/Video Call**: Experience seamless communication with integrated hands-free voice and video call features, allowing for a more dynamic and interactive chat environment.
+### Docker 部署 (推荐)
 
-- 🛠️ **Model Builder**: Easily create Ollama models via the Web UI. Create and add custom characters/agents, customize chat elements, and import models effortlessly through [BoR Community](https://community.bor.com/) integration (assuming a BoR community site).
-
-- 🐍 **Native Python Function Calling Tool**: Enhance your LLMs with built-in code editor support in the tools workspace. Bring Your Own Function (BYOF) by simply adding your pure Python functions, enabling seamless integration with LLMs.
-
-- 📚 **Local RAG Integration**: Dive into the future of chat interactions with groundbreaking Retrieval Augmented Generation (RAG) support. This feature seamlessly integrates document interactions into your chat experience. You can load documents directly into the chat or add files to your document library, effortlessly accessing them using the `#` command before a query.
-
-- 🔍 **Web Search for RAG**: Perform web searches using providers like `SearXNG`, `Google PSE`, `Brave Search`, `serpstack`, `serper`, `Serply`, `DuckDuckGo`, `TavilySearch`, `SearchApi` and `Bing` and inject the results directly into your chat experience.
-
-- 🌐 **Web Browsing Capability**: Seamlessly integrate websites into your chat experience using the `#` command followed by a URL. This feature allows you to incorporate web content directly into your conversations, enhancing the richness and depth of your interactions.
-
-- 🎨 **Image Generation Integration**: Seamlessly incorporate image generation capabilities using options such as AUTOMATIC1111 API or ComfyUI (local), and OpenAI's DALL-E (external), enriching your chat experience with dynamic visual content.
-
-- ⚙️ **Many Models Conversations**: Effortlessly engage with various models simultaneously, harnessing their unique strengths for optimal responses. Enhance your experience by leveraging a diverse set of models in parallel.
-
-- 🔐 **Role-Based Access Control (RBAC)**: Ensure secure access with restricted permissions; only authorized individuals can access your Ollama, and exclusive model creation/pulling rights are reserved for administrators.
-
-- 🌐🌍 **Multilingual Support**: Experience BoR in your preferred language with our internationalization (i18n) support. Join us in expanding our supported languages! We're actively seeking contributors!
-
-- 🧩 **Pipelines, BoR Plugin Support**: Seamlessly integrate custom logic and Python libraries into BoR using a Pipelines Plugin Framework. (Note: Link to generic pipeline concept, or BoR specific if exists, original link removed).
-
-- 🌟 **Continuous Updates**: We are committed to improving BoR with regular updates, fixes, and new features.
-- ⚙️ **Centralized Configuration**: Simplified deployment and setup using a single `settings_config.yaml` file. Configure service ports, branding, LLM endpoints, RAG, and more in one place. See `settings_config.yaml.example` for all options.
-- 🧑‍💼 **User Management API (v2)**: A new set of administrator APIs (prefix: `/api/v2/admin/users`) for robust user management. Features include CRUD operations for users, activation/deactivation, password resets, pagination, and filtering. This API is designed for integration with a new, forthcoming independent admin interface.
-- ✨ **New React-based Admin Frontend (In Development)**: A modern, separate admin frontend built with React, Vite, Ant Design, Zustand, and TypeScript. It aims to provide a dedicated and enhanced experience for all administrative tasks, eventually replacing management functionalities from the original Svelte frontend's admin section.
-    - **Current Features:** Includes comprehensive User Management via the new V2 Admin APIs.
-    - **Future Scope:** Other admin modules (System Configuration, Knowledge Management, Model Management, etc.) are planned for this new frontend.
-
-Want to learn more about BoR's features? Check out our [BoR documentation](https://docs.bor.com/features) for a comprehensive overview!
-
-## 🚀 BoR Admin Frontend (New)
-
-The new BoR Admin Frontend is a dedicated interface built with React, Vite, Ant Design, Zustand, and TypeScript, designed to provide a modern and comprehensive experience for all administrative tasks. It will eventually replace the admin functionalities currently found within the main Svelte-based application.
-
-### Accessing the Admin Frontend
-The React admin frontend runs as a separate application during development.
-- **URL:** Typically `http://localhost:5173` (Vite's default) when started with `npm run dev`.
-- Ensure the BoR backend service is running, as the admin frontend connects to the same backend APIs.
-
-### Logging In
-Use your administrator credentials to log in. The same credentials used for the main BoR application's admin access are used here, as authentication is handled by the shared backend.
-
-![BoR Admin Login Page Screenshot](images/bor-admin-login.png "BoR Admin Login Page")
-*Caption: The login screen for the BoR Admin Frontend. (Note: Screenshot is a placeholder)*
-
-### Navigating the Admin Frontend
-The admin frontend features a classic layout:
-- **Left Sidebar:** Collapsible navigation menu for accessing different admin modules.
-- **Top Header:** Displays breadcrumbs for current location and a user profile dropdown with a logout option.
-- **Main Content Area:** Where the specific module's interface is rendered.
-
-![BoR Admin Dashboard Screenshot](images/bor-admin-dashboard.png "BoR Admin Dashboard Overview")
-*Caption: Overview of the BoR Admin Dashboard after login, showing the main layout. (Note: Screenshot is a placeholder)*
-
-### Key Management Modules (Preliminary)
-
-Currently, the following modules have been implemented in the new admin frontend:
-
-*   **User Management:**
-    *   Accessible via the "User Management" menu.
-    *   Allows administrators to create, list, search, filter (by username/email, role, active status), update (role, email, active status), and delete users.
-    *   Includes functionality to set or reset user passwords.
-    ![Admin User List Screenshot](images/bor-admin-user-list.png "BoR Admin User Management")
-    *Caption: User management table interface. (Note: Screenshot is a placeholder)*
-
-*   **System Configuration:**
-    *   Found under "Settings" > "System Configs".
-    *   Enables viewing and modification of various backend configurations, grouped by category (e.g., UI, Auth, RAG, Ollama). Changes are saved and applied to the backend.
-    ![Admin System Config Screenshot](images/bor-admin-system-config.png "BoR Admin System Configuration")
-    *Caption: System configuration interface with tabbed categories. (Note: Screenshot is a placeholder)*
-
-*   **External RAG Services:**
-    *   Located under "RAG Management" > "External Services".
-    *   Manage connections to external RAG APIs by adding, editing, or deleting service configurations (URL, API Key).
-    ![Admin External RAG Screenshot](images/bor-admin-external-rag.png "BoR Admin External RAG Services")
-    *Caption: Managing external RAG service connections. (Note: Screenshot is a placeholder)*
-
-*   **Model Management (Preliminary):**
-    *   Accessible via "Model Management".
-    *   Allows pulling new Ollama models, viewing local Ollama models and configured remote/API-based models.
-    *   Supports deleting local Ollama models.
-    *   Manage global model settings (e.g., default model list, model display order).
-    ![Admin Model Management Screenshot](images/bor-admin-model-management.png "BoR Admin Model Management")
-    *Caption: Interface for managing LLM models. (Note: Screenshot is a placeholder)*
-
-*   **Knowledge Base Management (Preliminary):**
-    *   Found under "RAG Management" > "Knowledge Bases".
-    *   Features document uploading (drag-and-drop or selection).
-    *   View lists of uploaded documents with their processing status.
-    *   View lists of existing knowledge base collections (collection creation/management is WIP).
-    ![Admin Knowledge Base Screenshot](images/bor-admin-knowledge-base.png "BoR Admin Knowledge Base Management")
-    *Caption: Document upload and listing in Knowledge Base Management. (Note: Screenshot is a placeholder)*
-
-### Developing the React Admin Frontend
-The new React-based admin frontend is located in the `bor_admin_frontend` directory.
-
-1.  **Navigate to the directory:**
-    ```bash
-    cd bor_admin_frontend
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or yarn install / pnpm install
-    ```
-3.  **Run the development server:**
-    ```bash
-    npm run dev
-    # or yarn dev / pnpm dev
-    ```
-    This usually starts the admin frontend on `http://localhost:5173` (Vite's default port, check console output).
-
-### Future Scope
-Additional admin modules and enhancements will be progressively added to this new React frontend.
-
-*(Please note: All screenshots referenced above are placeholders and need to be created and added to an `images/` directory in the project root.)*
-
-## 📦 BoR App Frontend (New) - In Development
-
-Alongside the new admin interface, a brand new **application frontend** is also under development, built with the same modern technology stack: React, Vite, Ant Design, Zustand, and TypeScript.
-
-**Purpose:** This frontend aims to eventually replace the current Svelte-based user-facing application. It will provide the main interface for users to interact with chat functionalities, RAG features, manage their profiles, and other application-specific settings.
-
-**Current Status & Features:**
-*   **Core Chat Interface:** "Fully functional chat interface with message sending, receiving (streaming & non-streaming), Markdown rendering, code block highlighting, and copy-to-clipboard for messages."
-*   **Session Management:** "Comprehensive session management via a collapsible sidebar: create new chats, list history, switch between sessions, and delete sessions. Active session is reflected in URL and persisted."
-*   **RAG Context Selection:** "Users can select available Knowledge Base collections via a 'Knowledge Picker' integrated into the chat input to provide context for RAG-enhanced queries."
-*   **Model & Parameter Control:** "In-chat selection of language models and adjustment of parameters like temperature, with settings persisted per session."
-*   **User Personalization:** "Theme customization (light/dark/system with persistence) and a basic user profile page (view/edit name, email, avatar - backend-dependent for updates)."
-*   **Authentication:** "Robust login, logout, and session restoration mécanisme using JWT tokens stored in localStorage."
-*   **Testing:** "Core components, stores, and API services are covered by unit and integration tests using Vitest and React Testing Library."
-*   **Overall Status:** "The React App Frontend has achieved a near-MVP (Minimum Viable Product) state for core chat functionalities."
-
-![BoR App Chat Interface](images/bor-app-chat-interface.png "BoR App Chat Interface with Model & Knowledge Selection")
-*Caption: The main chat interface of the new BoR App Frontend, showcasing model selection, RAG knowledge picker, and message display. (Note: Screenshot is a placeholder)*
-
-**How to Run (App Frontend for Development):**
-
-> **Important Note:** Due to current automated tooling limitations during the initial project scaffolding phase, the Vite project initialization (`npm create vite`) and initial dependency installation (`npm install`) for the `bor_app_frontend` directory must be performed manually by the developer in their local environment. The necessary source code files for the core framework and directory structure have been programmatically provided.
-
-1.  **Navigate to the `bor_app_frontend` directory:**
-    ```bash
-    cd bor_app_frontend
-    ```
-2.  **(Manual Step) Initialize Vite Project & Install Dependencies:**
-    If not already done (e.g., if you're setting this up for the first time after pulling the codebase):
-    *   Ensure you have Node.js and npm (or Yarn/pnpm) installed.
-    *   If `package.json` is missing or incomplete, you might need to run `npm create vite@latest . -- --template react-ts` (or your package manager's equivalent) carefully, ensuring not to overwrite existing source files if they are already present.
-    *   Install core dependencies:
-        ```bash
-        npm install antd react-router-dom@6 axios zustand react-hook-form react-markdown remark-gfm rehype-highlight
-        npm install @ant-design/icons --save
-        # npm install dayjs # If needed for date handling
-        ```
-        (Refer to the initial setup plan for a more complete list if needed, or check existing `bor_admin_frontend` for guidance on typical dev dependencies like `@types/react` etc. if not added by Vite's template.)
-3.  **(Once initialized and dependencies are installed) Create Environment File:**
-    *   In the `bor_app_frontend` root, create a `.env.development` file (or `.env.local`).
-    *   Add your API base URL, for example: `VITE_API_BASE_URL=/api/v1`
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    # or yarn dev / pnpm dev
-    ```
-    The application frontend will typically be available at `http://localhost:PORT_OF_REACT_APP/` (Vite's default is often 5173; ensure it's different from the admin frontend or backend if running simultaneously). It connects to the same backend API as the main/admin applications.
-
-**Future Scope / Next Steps:**
-*   "Immediate next steps include: "
-    *   "Implementing the display of RAG-retrieved sources within chat messages to complete the RAG query cycle."
-    *   "Close collaboration with backend development to ensure full alignment and stability of V1 application APIs, especially for session initiation, streaming protocols, and error handling."
-    *   "Further enhancements to error handling and overall user experience based on testing and feedback."
-*   "Longer-term goals involve adding advanced features, further performance optimizations, and eventually achieving full parity with (and superseding) the original Svelte-based application."
-
-## 🔗 Also Check Out BoR Community!
-
-Don't forget to explore our sibling project, [BoR Community](https://community.bor.com/) (assuming URL), where you can discover, download, and explore customized Modelfiles. BoR Community offers a wide range of exciting possibilities for enhancing your chat interactions with BoR! 🚀
-
-## How to Install 🚀
-
-### Installation via Python pip 🐍
-
-BoR can be installed using pip, the Python package installer. Before proceeding, ensure you're using **Python 3.11** to avoid compatibility issues.
-
-1. **Install BoR**:
-   Open your terminal and run the following command to install BoR:
-
-   ```bash
-   pip install bor-webui
-   ```
-   (Assuming package name changes, e.g. `pip install open-webui` -> `pip install bor-webui`)
-
-
-2. **Running BoR**:
-   After installation, you can start BoR by executing:
-
-   ```bash
-   bor-webui serve
-   ```
-   (Assuming command changes, e.g. `open-webui serve` -> `bor-webui serve`)
-
-
-This will start the BoR server, which you can access at [http://localhost:8080](http://localhost:8080)
-
-### Quick Start with Docker 🐳
-
-> [!NOTE]  
-> Please note that for certain Docker environments, additional configurations might be needed. If you encounter any connection issues, our detailed guide on [BoR Documentation](https://docs.bor.com/) is ready to assist you.
-
+> [!NOTE]
+> 对于特定的Docker环境，可能需要额外配置。如遇连接问题，请参考我们的 [BoR文档](https://docs.bor.com/) (链接待更新)。
 > [!WARNING]
-> When using Docker to install BoR, make sure to include the `-v bor-data:/app/backend/data` in your Docker command. This step is crucial as it ensures your database is properly mounted and prevents any loss of data. (Volume name changed)
+> 使用Docker安装BoR时，请务必在Docker命令中包含 `-v bor-data:/app/backend/data` (或您自定义的数据目录)。此步骤至关重要，它能确保您的数据库和配置文件正确挂载且数据不会丢失。
+> [!TIP]
+> 若需使用包含Ollama或CUDA加速的BoR版本，我们推荐使用官方提供的 `:cuda` 或 `:ollama` 标签镜像。启用CUDA需在您的Linux/WSL系统上安装 [Nvidia CUDA容器工具包](https://docs.nvidia.com/dgx/nvidia-container-runtime-upgrade/)。
 
-> [!TIP]  
-> If you wish to utilize BoR with Ollama included or CUDA acceleration, we recommend utilizing our official images tagged with either `:cuda` or `:ollama`. To enable CUDA, you must install the [Nvidia CUDA container toolkit](https://docs.nvidia.com/dgx/nvidia-container-runtime-upgrade/) on your Linux/WSL system.
+**1. 基础配置 (连接到您本地已有的Ollama服务):**
+   ```bash
+   docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v ./bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
+   ```
+   *   `-p 3000:8080`: 将容器的8080端口映射到主机的3000端口。您可以通过 `http://localhost:3000` 访问BoR。
+   *   `--add-host=host.docker.internal:host-gateway`: 允许容器访问宿主机的Ollama服务 (通常在 `http://host.docker.internal:11434`)。
+   *   `-v ./bor-data:/app/backend/data`: **非常重要！** 将您本地当前目录下的 `bor-data` 文件夹映射为容器内后端数据目录。**请确保 `bor-data` 文件夹中包含您的 `settings_config.yaml` 文件。**
 
-### Installation with Default Configuration
+**2. 连接到不同服务器上的Ollama:**
+   修改 `-e OLLAMA_BASE_URL` 环境变量：
+   ```bash
+   docker run -d -p 3000:8080 -e OLLAMA_BASE_URL=http://your-ollama-server-ip:11434 -v ./bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
+   ```
 
-- **If Ollama is on your computer**, use this command:
+**3. 使用Nvidia GPU运行 (需本地Ollama支持GPU):**
+   ```bash
+   docker run -d -p 3000:8080 --gpus all --add-host=host.docker.internal:host-gateway -v ./bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:cuda
+   ```
 
-  ```bash
-  docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
-  ```
-  (Image path and volume name changed)
+**4. 仅使用兼容OpenAI的API (不使用Ollama):**
+   在您的 `settings_config.yaml` 中配置 `openai_compatible_api` 相关参数。然后运行基础Docker命令。如果API密钥需要在环境变量中传递（不推荐，优先使用配置文件），则：
+   ```bash
+   docker run -d -p 3000:8080 -e OPENAI_API_KEY_PLACEHOLDER=your_secret_key -v ./bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
+   ```
+   *(注意：此处的 `OPENAI_API_KEY_PLACEHOLDER` 仅为示例，实际应通过 `settings_config.yaml` 配置。)*
 
-- **If Ollama is on a Different Server**, use this command:
+**5. 使用捆绑Ollama的镜像 (一体化部署):**
+   此镜像内置Ollama，简化部署。
+   *   **GPU支持:**
+       ```bash
+       docker run -d -p 3000:8080 --gpus=all -v ollama_data:/root/.ollama -v ./bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:ollama
+       ```
+       (`ollama_data` 用于持久化Ollama模型)
+   *   **仅CPU:**
+       ```bash
+       docker run -d -p 3000:8080 -v ollama_data:/root/.ollama -v ./bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:ollama
+       ```
+   访问地址仍为 `http://localhost:3000`。
 
-  To connect to Ollama on another server, change the `OLLAMA_BASE_URL` to the server's URL:
-
-  ```bash
-  docker run -d -p 3000:8080 -e OLLAMA_BASE_URL=https://example.com -v bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
-  ```
-
-- **To run BoR with Nvidia GPU support**, use this command:
-
-  ```bash
-  docker run -d -p 3000:8080 --gpus all --add-host=host.docker.internal:host-gateway -v bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:cuda
-  ```
-
-### Installation for OpenAI API Usage Only
-
-- **If you're only using OpenAI API**, use this command:
-
-  ```bash
-  docker run -d -p 3000:8080 -e OPENAI_API_KEY=your_secret_key -v bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
-  ```
-
-### Installing BoR with Bundled Ollama Support
-
-This installation method uses a single container image that bundles BoR with Ollama, allowing for a streamlined setup via a single command. Choose the appropriate command based on your hardware setup:
-
-- **With GPU Support**:
-  Utilize GPU resources by running the following command:
-
-  ```bash
-  docker run -d -p 3000:8080 --gpus=all -v ollama:/root/.ollama -v bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:ollama
-  ```
-
-- **For CPU Only**:
-  If you're not using a GPU, use this command instead:
-
-  ```bash
-  docker run -d -p 3000:8080 -v ollama:/root/.ollama -v bor-data:/app/backend/data --name bor-webui --restart always ghcr.io/BoRDev/BoR:ollama
-  ```
-
-Both commands facilitate a built-in, hassle-free installation of both BoR and Ollama, ensuring that you can get everything up and running swiftly.
-
-After installation, you can access BoR at [http://localhost:3000](http://localhost:3000). Enjoy! 😄
-
-### Other Installation Methods
-
-We offer various installation alternatives, including non-Docker native installation methods, Docker Compose, Kustomize, and Helm. Visit our [BoR Documentation](https://docs.bor.com/getting-started/) or join our [BoR community](https://discord.bor.com) (assuming Discord link changes) for comprehensive guidance.
-
-### Troubleshooting
-
-Encountering connection issues? Our [BoR Documentation](https://docs.bor.com/troubleshooting/) has got you covered. For further assistance and to join our vibrant community, visit the [BoR Discord](https://discord.bor.com).
-
-#### BoR: Server Connection Error
-
-If you're experiencing connection issues, it’s often due to the WebUI docker container not being able to reach the Ollama server at 127.0.0.1:11434 (host.docker.internal:11434) inside the container . Use the `--network=host` flag in your docker command to resolve this. Note that the port changes from 3000 to 8080, resulting in the link: `http://localhost:8080`.
-
-**Example Docker Command**:
-
-```bash
-docker run -d --network=host -v bor-data:/app/backend/data -e OLLAMA_BASE_URL=http://127.0.0.1:11434 --name bor-webui --restart always ghcr.io/BoRDev/BoR:main
-```
-
-### Keeping Your Docker Installation Up-to-Date
-
-In case you want to update your local Docker installation to the latest version, you can do it with [Watchtower](https://containrrr.dev/watchtower/):
-
+**保持Docker安装更新:**
+使用 [Watchtower](https://containrrr.dev/watchtower/) 自动更新：
 ```bash
 docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --run-once bor-webui
 ```
-(Container name changed)
+(将 `bor-webui` 替换为您的容器名)
+更多更新指南请查阅 [BoR文档](https://docs.bor.com/getting-started/updating) (链接待更新)。
 
-In the last part of the command, replace `bor-webui` with your container name if it is different.
+### 手动安装 / 本地开发部署
 
-Check our Updating Guide available in our [BoR Documentation](https://docs.bor.com/getting-started/updating).
+适用于开发者或需要更细致控制的场景。
 
-### Using the Dev Branch 🌙
+**1. 后端 (Python FastAPI):**
+   *   确保您已安装 Python 3.10+。
+   *   克隆仓库: `git clone https://github.com/BoRDev/BoR.git`
+   *   进入后端目录: `cd BoR/backend`
+   *   创建并激活虚拟环境 (推荐):
+       ```bash
+       python -m venv venv
+       source venv/bin/activate  # Linux/macOS
+       # venv\Scripts\activate    # Windows
+       ```
+   *   安装依赖: `pip install -r requirements.txt`
+   *   准备数据目录和配置文件:
+       *   在 `backend` 目录下创建 `data` 文件夹 (或通过环境变量 `DATA_DIR` 指定其他路径)。
+       *   将项目根目录的 `settings_config.yaml.example` 复制到您的数据目录 (例如 `backend/data/settings_config.yaml`) 并进行配置。
+   *   运行数据库迁移 (如果使用数据库): `alembic upgrade head` (需要先配置好 `settings_config.yaml` 中的数据库连接)
+   *   启动后端服务: `uvicorn main:app --host 0.0.0.0 --port 8080 --reload`
+       (后端默认运行在 `http://localhost:8080`)
 
-> [!WARNING]
-> The `:dev` branch contains the latest unstable features and changes. Use it at your own risk as it may have bugs or incomplete features.
+**2. React管理前端 (`bor_admin_frontend`):**
+   *   进入目录: `cd ../bor_admin_frontend` (假设您在 `BoR/backend` 下)
+   *   安装依赖: `npm install`
+   *   创建 `.env.development` 文件，并设置 `VITE_API_BASE_URL=http://localhost:8080/api/v2/admin` (指向您的后端V2 Admin API地址)
+   *   启动开发服务器: `npm run dev`
+       (通常运行在 `http://localhost:5173`)
 
-If you want to try out the latest bleeding-edge features and are okay with occasional instability, you can use the `:dev` tag like this:
+**3. React应用前端 (`bor_app_frontend`):**
+   *   进入目录: `cd ../bor_app_frontend`
+   *   **(手动步骤) 初始化Vite项目并安装依赖 (如果尚未完成):**
+       请参照前面 "📦 BoR 应用前端 (新) - 开发中" > "如何运行" 部分的详细说明完成项目初始化和依赖安装。
+   *   创建 `.env.development` 文件，并设置 `VITE_API_BASE_URL=http://localhost:8080/api/v1` (指向您的后端V1应用API地址)
+   *   启动开发服务器: `npm run dev`
+       (通常运行在 `http://localhost:5174` 或其他未被占用的端口，请检查Vite输出)
 
-```bash
-docker run -d -p 3000:8080 -v bor-data:/app/backend/data --name bor-webui --add-host=host.docker.internal:host-gateway --restart always ghcr.io/BoRDev/BoR:dev
-```
+**4. Svelte旧版前端 (如需访问):**
+   Svelte前端与后端集成在同一个Python服务中。当您通过 `uvicorn` 启动后端时，Svelte前端通常可以通过后端端口（例如 `http://localhost:8080`）直接访问，除非在 `settings_config.yaml` 中禁用了前端服务。
 
-<!-- Development instructions for React Admin moved to its own section -->
+### 其他安装方式
+包括非Docker本地安装、Docker Compose、Kustomize和Helm等。请访问我们的 [BoR文档](https://docs.bor.com/getting-started/) (链接待更新) 或加入我们的社区获取详细指南。
 
-### Offline Mode
-
-If you are running BoR in an offline environment, you can set the `HF_HUB_OFFLINE` environment variable to `1` to prevent attempts to download models from the internet.
-
-```bash
-export HF_HUB_OFFLINE=1
-```
-
-## What's Next? 🌟
-
-Discover upcoming features on our roadmap in the [BoR Documentation](https://docs.bor.com/roadmap/).
-
-## License 📜
-
-This project is licensed under the [BSD-3-Clause License](LICENSE) - see the [LICENSE](LICENSE) file for details. 📄
-(Assuming license itself doesn't change, only copyright holder if BoR re-licenses, which is not implied here)
-
-## Support 💬
-
-If you have any questions, suggestions, or need assistance, please open an issue or join our
-[BoR Discord community](https://discord.bor.com) to connect with us! 🤝
-
-## Star History
-
-<a href="https://star-history.com/#BoRDev/BoR&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BoRDev/BoR&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=BoRDev/BoR&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=BoRDev/BoR&type=Date" />
-  </picture>
-</a>
+### 故障排除
+连接问题？请查阅 [BoR文档的故障排除部分](https://docs.bor.com/troubleshooting/) (链接待更新)。
 
 ---
 
-BoR is based on software originally created by Timothy Jaeryang Baek. Let's make BoR even more amazing together! 💪
+## 📖 使用指南 (BoR React应用前端)
+
+新的React应用前端提供了现代化的用户体验。
+
+1.  **登录:** 打开React应用前端地址 (如 `http://localhost:5174`)，使用您的账户凭据登录。
+2.  **主界面:**
+    *   **左侧边栏:** 管理您的聊天会话。点击“新建聊天”开始新的对话，或从列表中选择历史会话。
+    *   **聊天区:** 显示当前会话的消息。您发送的消息和AI的回复会在这里展示。
+    *   **顶部操作栏:**
+        *   **模型选择器:** 选择本次对话希望使用的语言模型。
+        *   **温度滑块:** 调整模型的创造性（温度值越低越保守，越高越随机）。
+        *   **清空会话:** 清除当前聊天窗口的所有消息（仅影响本地显示，如需永久删除需后端支持）。
+    *   **输入区:**
+        *   **知识选择器:** (可选) 在输入消息前，从这里选择一个或多个已配置的知识库集合。选择后，您的提问将结合所选知识库内容进行检索增强。
+        *   **消息输入框:** 输入您的问题或指令。支持Markdown。
+        *   **(占位)附件按钮:** 未来将支持图片等多模态输入。
+        *   **发送/停止按钮:** 发送消息，或在AI回复过程中停止生成。
+3.  **消息操作:**
+    *   **复制:** 每条消息旁都有复制按钮，方便复制代码或文本。
+    *   **编辑/删除 (用户消息):** 您自己发送的消息旁边会有编辑和删除按钮（需后端API支持）。编辑操作会将消息内容填入输入框（或其他编辑模式）供修改。
+4.  **用户菜单 (右上角):**
+    *   **个人资料:** 查看和修改您的用户名、邮箱，更换头像（部分功能依赖后端）。
+    *   **外观设置:** 切换应用的主题（明亮、暗黑或跟随系统）。
+    *   **退出登录。**
 
 ---
-## 中文说明 / Chinese Version (示例 / Example)
 
-**BoR 是一款功能丰富、用户友好、可扩展的自托管人工智能平台，专为完全离线操作而设计。** 它支持如 **Ollama** 和 **兼容OpenAI的API** 等多种大型语言模型运行器，并内置RAG推理引擎，使其成为一个**强大的人工智能部署解决方案**。
+## ⚙️ 管理后台使用指南 (BoR React管理前端)
 
-![BoR 演示](./demo_bor.gif) <!-- 假设 demo_bor.gif 存在或此链接将更新 -->
+新的React管理后台 (`bor_admin_frontend`) 提供了一个独立的、功能更全面的管理界面。
 
-> [!TIP]
-> **正在寻找[企业版方案](https://docs.bor.com/enterprise)？** – **[立即联系我们的销售团队！](mailto:sales@bor.com)**
->
-> 获取**增强功能**，包括**自定义主题与品牌化**、**服务等级协议（SLA）支持**、**长期支持（LTS）版本**等等！
-
-更多信息，请务必查阅我们的[BoR文档](https://docs.bor.com/)。
-
-### BoR 主要特性 ⭐
-
-- 🚀 **轻松设置**: 通过 Docker 或 Kubernetes (kubectl, kustomize 或 helm) 无缝安装，支持 `:ollama` 和 `:cuda` 标签的镜像，带来无忧体验。
-- 🤝 **Ollama/OpenAI API 集成**: 轻松集成兼容OpenAI的API，实现与Ollama模型并行的多样化对话。自定义OpenAI API URL以连接到 **LMStudio、GroqCloud、Mistral、OpenRouter 等**。
-- 🛡️ **精细的权限与用户组管理**: 管理员可以创建详细的用户角色和权限，确保安全的用户环境。这种精细化管理不仅增强了安全性，还允许定制化的用户体验，培养用户的归属感和责任感。
-- ... (其他特性继续保持中英对照或单独的中文块)
-- ⚙️ **集中化配置 (`settings_config.yaml`)**: 通过单一 `settings_config.yaml` 文件简化部署和设置。集中配置服务端口、品牌化、LLM服务端点、RAG设置等。详情请参阅 `settings_config.yaml.example`。
-- 🧑‍💼 **用户管理API (v2)**: 一套全新的管理员API (前缀: `/api/v2/admin/users`)，用于强大的用户管理。功能包括用户的增删改查、账户激活/禁用、密码重置、分页和筛选用户列表。此API专为即将推出的独立管理界面集成而设计。
-
-- 🛡️ **精细的权限与用户组管理**: 管理员可以创建详细的用户角色和权限，确保安全的用户环境。这种精细化管理不仅增强了安全性，还允许定制化的用户体验，培养用户的归属感和责任感。
-- ... (其他特性继续保持中英对照或单独的中文块)
-- ⚙️ **集中化配置 (`settings_config.yaml`)**: 通过单一 `settings_config.yaml` 文件简化部署和设置。集中配置服务端口、品牌化、LLM服务端点、RAG设置等。详情请参阅 `settings_config.yaml.example`。
-- 🧑‍💼 **用户管理API (v2)**: 一套全新的管理员API (前缀: `/api/v2/admin/users`)，用于强大的用户管理。功能包括用户的增删改查、账户激活/禁用、密码重置、分页和筛选用户列表。此API专为即将推出的独立管理界面集成而设计。
-- ✨ **全新的基于React的管理前端 (开发中)**: 一个现代化的、独立的管理前端，使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建。旨在为所有管理任务提供专门且增强的体验，最终取代原Svelte前端中的管理功能。
-    - **当前功能:** 已包含通过新V2 Admin API实现的完整用户管理、系统配置、外部RAG服务管理，以及初步的模型和知识库管理功能。
-    - **未来规划:** 其他管理模块和现有功能的增强将持续进行。
-- ✨ **全新的基于React的应用前端 (开发中)**: 一个现代化的、独立的面向用户的应用前端，同样使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建。其目标是最终取代当前基于Svelte的应用，提供聊天、RAG互动、用户配置等功能。
-    - **当前状态与特性：**
-        - **核心聊天界面：** 功能完整的聊天界面，支持消息收发（流式与非流式）、Markdown渲染、代码高亮、消息复制。
-        - **会话管理：** 通过可伸缩侧边栏进行全面的会话管理：新建、列表、切换、删除。活动会话与URL同步并持久化。
-        - **RAG上下文选择：** 用户可通过聊天输入区的“知识选择器”选择知识库集合，为RAG增强查询提供上下文。
-        - **模型与参数控制：** 聊天中可选择语言模型并调整温度等参数，设置按会话持久化。
-        - **用户个性化：** 主题定制（明亮/暗黑/系统，带持久化）和基本的用户资料页面（查看/编辑姓名、邮箱、头像 - 更新依赖后端）。
-        - **认证：** 健全的登录、注销、会话恢复机制（使用localStorage存储JWT）。
-        - **测试：** 核心组件、Store和API服务已覆盖单元/集成测试。
-        - **整体状态：** React应用前端的核心聊天功能已接近MVP（最小可行产品）状态。
-    - **未来规划:** 后续将集中开发面向用户的核心功能。
-
-(此处仅为示例，完整的中文翻译会很长，其他特性条目也应相应翻译)
+1.  **访问与登录:**
+    *   打开React管理前端地址 (如 `http://localhost:5173`)。
+    *   使用管理员账户登录。
+2.  **主要模块:**
+    *   **用户管理:** 创建、查看、编辑、删除用户，重置密码，分配角色。
+    *   **系统配置:** (路径: 设置 > 系统配置) 查看和修改BoR后端的各项配置参数，如UI设置、认证参数、RAG设置、Ollama/OpenAI API端点等。配置项按类别分组。
+    *   **RAG管理:**
+        *   **外部服务:** 管理外部RAG API服务的连接（增删改查）。
+        *   **知识库 (初步):** 上传文档到默认知识库，查看文档列表和状态。未来将扩展集合管理等功能。
+    *   **模型管理 (初步):** 拉取新的Ollama模型，查看和删除本地Ollama模型，查看已配置的远程API模型。管理全局模型设置。
+3.  **导航:** 使用左侧菜单栏进行模块切换。顶部面包屑指示当前位置，用户菜单提供注销选项。
 
 ---
-## 🚀 BoR 管理前端 (新)
 
-全新的 BoR 管理前端是一个使用 React、Vite、Ant Design、Zustand 和 TypeScript 构建的独立界面，旨在为所有管理任务提供现代化且全面的体验。它将逐步取代原先Svelte应用中的管理功能。
+## 🛠️ 开发 (Development)
 
-### 访问管理前端
-React 管理前端在开发模式下通常独立运行。
-- **URL:** 开发模式下默认为 `http://localhost:5173` (Vite 默认端口)。
-- 请确保 BoR 后端服务正在运行，因为管理前端连接到相同的后端 API。
+### 项目结构简介
+BoR项目主要包含以下几个部分：
+*   `backend/`: Python FastAPI 后端服务，包含API实现、数据库模型、RAG逻辑等。
+*   `frontend/` (或 `webui/`): 原Svelte用户前端 (目前维护模式)。
+*   `bor_admin_frontend/`: 新的React管理前端。
+*   `bor_app_frontend/`: 新的React应用前端。
+*   `settings_config.yaml.example`: 后端核心配置文件示例。
+*   `Dockerfile`, `docker-compose.yml` (如果提供): Docker相关配置。
 
-### 登录
-使用您的管理员凭据登录。如果后端认证共享，则与主 BoR 应用的管理员访问凭据相同。
+### 后端开发指引
+*   **环境:** Python 3.10+。
+*   **主要框架/库:** FastAPI, SQLAlchemy, Alembic, Pydantic。
+*   **API版本:**
+    *   `/api/v1/*`: 主要供应用前端使用。
+    *   `/api/v2/admin/*`: 主要供React管理前端使用。
+*   **数据库迁移:** 使用 `alembic` 管理数据库结构变更。
+    *   生成迁移脚本: `alembic revision -m "your_migration_message"`
+    *   应用迁移: `alembic upgrade head`
+*   **配置:** 核心配置通过 `settings_config.yaml` 管理，由 `backend/open_webui/config.py` (或类似路径) 加载和解析。
+*   **运行:** `uvicorn main:app --reload`
 
-![BoR 管理登录页面截图](images/bor-admin-login.png "BoR 管理登录页面")
-*说明：BoR 管理前端的登录界面。(注意：截图为占位符)*
+### React管理前端开发指引 (`bor_admin_frontend/`)
+*   **环境:** Node.js (推荐LTS版本), npm/yarn/pnpm。
+*   **主要框架/库:** React, Vite, Ant Design, Zustand, TypeScript, React Router。
+*   **API交互:** 通过 `src/api/` 下的服务模块与后端 `/api/v2/admin/*` API 通信。
+*   **状态管理:** Zustand (`src/store/`)。
+*   **启动:**
+    1.  `cd bor_admin_frontend`
+    2.  `npm install`
+    3.  (可选) 创建 `.env.development` 并设置 `VITE_API_BASE_URL` (例如 `http://localhost:8080/api/v2/admin`)。
+    4.  `npm run dev` (通常运行在 `http://localhost:5173`)
 
-### 导航管理前端
-管理前端采用经典布局：
-- **左侧边栏:** 可伸缩的导航菜单，用于访问不同的管理模块。
-- **顶部标头:** 显示当前位置的面包屑导航和包含注销选项的用户配置下拉菜单。
-- **主内容区:** 渲染特定模块的界面。
-
-![BoR 管理仪表盘截图](images/bor-admin-dashboard.png "BoR 管理仪表盘概览")
-*说明：登录后 BoR 管理仪表盘的概览，展示了主布局。(注意：截图为占位符)*
-
-### 主要管理模块 (初步功能)
-
-目前，新的管理前端已实现以下模块：
-
-*   **用户管理:**
-    *   通过“用户管理”菜单访问。
-    *   允许管理员创建、列出、搜索、筛选（按用户名/邮箱、角色、激活状态）、更新（角色、邮箱、激活状态）、删除用户，以及重置密码。
-    ![BoR 管理用户列表截图](images/bor-admin-user-list.png "BoR 管理用户管理")
-    *说明：用户管理表格界面。(注意：截图为占位符)*
-
-*   **系统配置:**
-    *   位于“设置” > “系统配置”下。
-    *   允许修改多种后端配置项，按类别（如UI、认证、RAG、Ollama）分组。更改会全局保存。
-    ![BoR 管理系统配置截图](images/bor-admin-system-config.png "BoR 管理系统配置")
-    *说明：带选项卡的系统配置界面。(注意：截图为占位符)*
-
-*   **外部RAG服务:**
-    *   位于“RAG管理” > “外部服务”下。
-    *   管理对外部RAG API的连接，包括添加、编辑或删除服务配置（URL、API密钥）。
-    ![BoR 管理外部RAG截图](images/bor-admin-external-rag.png "BoR 管理外部RAG服务")
-    *说明：管理外部RAG服务连接的界面。(注意：截图为占位符)*
-
-*   **模型管理（初步）:**
-    *   通过“模型管理”菜单访问。
-    *   允许拉取新的Ollama模型，查看本地Ollama模型和已配置的远程/基于API的模型。
-    *   支持删除本地Ollama模型。
-    *   管理全局模型设置（例如，默认模型列表、模型显示顺序）。
-    ![BoR 管理模型管理截图](images/bor-admin-model-management.png "BoR 管理模型管理")
-    *说明：管理LLM模型的界面。(注意：截图为占位符)*
-
-*   **知识库管理（初步）:**
-    *   位于“RAG管理” > “知识库”下。
-    *   提供文档上传功能（拖拽或选择文件）。
-    *   查看已上传文档列表及其处理状态。
-    *   查看现有知识库集合列表（集合的创建/管理功能正在完善中）。
-    ![BoR 管理知识库截图](images/bor-admin-knowledge-base.png "BoR 管理知识库管理")
-    *说明：知识库管理中的文档上传与列表功能。(注意：截图为占位符)*
-
-### 开发React管理前端
-新的基于React的管理前端位于 `bor_admin_frontend` 目录中。
-
-1.  **进入目录:**
-    ```bash
-    cd bor_admin_frontend
-    ```
-2.  **安装依赖:**
-    ```bash
-    npm install
-    # 或 yarn install / pnpm install
-    ```
-3.  **运行开发服务器:**
-    ```bash
-    npm run dev
-    # 或 yarn dev / pnpm dev
-    ```
-    这通常会在 `http://localhost:5173` (Vite的默认端口，请检查控制台输出) 启动管理前端。
-
-### 未来规划
-其他管理模块和现有功能的增强将逐步添加到此新的React前端。
-
-*(请注意：以上所有引用的截图均为占位符，需要手动创建并添加到项目根目录的 `images/` 文件夹中。)*
-
+### React应用前端开发指引 (`bor_app_frontend/`)
+*   **环境:** Node.js, npm/yarn/pnpm。
+*   **主要框架/库:** React, Vite, Ant Design, Zustand, TypeScript, React Router。
+*   **API交互:** 通过 `src/api/` 下的服务模块与后端 `/api/v1/*` API 通信。
+*   **状态管理:** Zustand (`src/store/`)。
+*   **启动:**
+    1.  `cd bor_app_frontend`
+    2.  **(手动步骤) 确保项目已正确初始化并安装依赖。** (参考前面 "如何运行（应用前端开发）" 部分的说明)
+    3.  (可选) 创建 `.env.development` 并设置 `VITE_API_BASE_URL` (例如 `http://localhost:8080/api/v1`)。
+    4.  `npm run dev` (通常运行在 `http://localhost:5174` 或其他可用端口)
 
 ---
-## 📦 BoR 应用前端 (新) - 开发中
 
-与新的管理界面并行，我们也在开发一个全新的**应用前端**，它同样基于现代技术栈：React、Vite、Ant Design、Zustand 和 TypeScript。
+## 🤝 贡献指南 (Contribution Guide)
 
-**目的：** 此前端旨在最终取代当前基于Svelte的用户界面，为用户提供聊天、RAG互动、个人资料管理等功能。
+我们热烈欢迎来自社区的各种贡献！无论是代码、文档、翻译、功能建议还是Bug报告，都对BoR项目至关重要。
 
-**当前状态与特性：**
-*   **核心聊天界面：** 功能完整的聊天界面，支持消息收发（流式与非流式）、Markdown渲染、代码高亮、消息复制。
-*   **会话管理：** 通过可伸缩侧边栏进行全面的会话管理：新建、列表、切换、删除。活动会话与URL同步并持久化。
-*   **RAG上下文选择：** 用户可通过聊天输入区的“知识选择器”选择知识库集合，为RAG增强查询提供上下文。
-*   **模型与参数控制：** 聊天中可选择语言模型并调整温度等参数，设置按会话持久化。
-*   **用户个性化：** 主题定制（明亮/暗黑/系统，带持久化）和基本的用户资料页面（查看/编辑姓名、邮箱、头像 - 更新依赖后端）。
-*   **认证：** 健全的登录、注销、会话恢复机制（使用localStorage存储JWT）。
-*   **测试：** 核心组件、Store和API服务已覆盖单元/集成测试。
-*   **整体状态：** React应用前端的核心聊天功能已接近MVP（最小可行产品）状态。
+<details>
+<summary>主要的贡献方式 (How to Contribute)</summary>
 
-![BoR 应用聊天界面](images/bor-app-chat-interface.png "BoR 应用聊天界面（含模型与知识选择器）")
-*说明：新的 BoR 应用前端主聊天界面，展示了模型选择、RAG知识选择器和消息显示。(注意：截图为占位符)*
+1.  **报告Bug:** 如果您发现了Bug，请在GitHub Issues中提交详细报告，包括复现步骤、环境信息和期望行为。
+2.  **提交功能请求:** 对于新功能或改进建议，也请通过GitHub Issues提出，并尽可能详细地描述您的想法和使用场景。
+3.  **参与代码开发:**
+    *   Fork本仓库。
+    *   创建新的特性分支 (`git checkout -b feature/YourAmazingFeature`)。
+    *   进行修改和开发。确保遵循项目编码规范（ESLint, Prettier等，如果配置了的话）。
+    *   为您的修改添加适当的单元测试或集成测试。
+    *   提交您的更改 (`git commit -m 'Add some YourAmazingFeature'`)。
+    *   推送代码到您的fork仓库 (`git push origin feature/YourAmazingFeature`)。
+    *   创建Pull Request到主仓库的 `main` (或 `dev`) 分支，并清晰描述您的PR内容。
+4.  **完善文档:** 如果您发现文档有不清晰、不准确或缺失之处，欢迎提交PR改进。
+5.  **国际化与翻译:** BoR致力于提供多语言支持。您可以帮助我们翻译新的语言，或改进现有语言的翻译。翻译文件通常位于各前端项目的 `src/locales/` 或类似路径下。
+6.  **社区互助:** 在Issue列表、论坛或社区聊天中积极帮助其他用户解答问题。
+</details>
 
-**如何运行（应用前端开发）：**
+我们期待您的参与！
 
-> **重要提示：** 由于当前自动化工具在项目初始化阶段存在限制，`bor_app_frontend` 目录的Vite项目初始化 (`npm create vite`) 和初始依赖安装 (`npm install`) **必须由开发者在本地环境中手动完成**。核心框架的源代码文件和目录结构已通过程序提供。
+---
 
-1.  **进入 `bor_app_frontend` 目录：**
-    ```bash
-    cd bor_app_frontend
-    ```
-2.  **（手动步骤）初始化Vite项目并安装依赖：**
-    如果您是首次设置或 `package.json` 缺失/不完整：
-    *   确保已安装 Node.js 和 npm (或 Yarn/pnpm)。
-    *   可能需要运行 `npm create vite@latest . -- --template react-ts` (或您包管理器的相应命令)，请注意如果源文件已存在，避免覆盖它们。
-    *   安装核心依赖：
-        ```bash
-        npm install antd react-router-dom@6 axios zustand react-hook-form react-markdown remark-gfm rehype-highlight
-        npm install @ant-design/icons --save
-        # npm install dayjs # 如果需要日期处理
-        ```
-        （如需更完整的依赖列表，可参考计划或 `bor_admin_frontend` 的 `package.json`。）
-3.  **（初始化和安装依赖后）创建环境文件：**
-    *   在 `bor_app_frontend` 根目录下创建 `.env.development` 文件。
-    *   添加您的API基地址，例如：`VITE_API_BASE_URL=/api/v1`
-4.  **运行开发服务器：**
-    ```bash
-    npm run dev
-    # 或 yarn dev / pnpm dev
-    ```
-    应用前端通常会在 `http://localhost:端口号/` (Vite默认通常是5173，请确保与管理前端或后端端口不同) 启动。
+## 📜 许可证 (License)
 
-**未来规划/下一步：**
-*   “近期的主要工作包括：”
-    *   “在聊天消息中实现RAG检索来源的展示，以完成RAG查询的闭环。”
-    *   “与后端开发紧密协作，确保V1应用API在会话初始化、流式协议、错误处理等方面的完全对齐和稳定性。”
-    *   “基于测试和反馈，进一步增强错误处理和整体用户体验。”
-*   “长期目标包括添加高级功能，进一步的性能优化，并最终完全达到并超越原Svelte应用的功能。”
+本项目基于 [BSD-3-Clause License](LICENSE) 授权。详情请参阅 [LICENSE](LICENSE) 文件。
+
+---
+## (可选) 英文版内容概要 / English Summary (Collapsed)
+<details>
+<summary><strong>Project Overview (English)</strong></summary>
+
+BoR (formerly Open-WebUI) is an open-source, self-hosted AI platform designed for offline operation, offering rich features and extensibility. It supports various LLM runners (Ollama, OpenAI-compatible APIs) and includes a built-in RAG engine.
+
+**Key Features (Summary):**
+*   Easy setup (Docker, Kubernetes).
+*   Ollama & OpenAI API integration.
+*   Advanced RAG capabilities (document upload, web search, URL loading).
+*   Full-featured chat interface (Markdown, code highlighting, model/parameter control per session, session management).
+*   User personalization (themes, profile).
+*   RBAC and user management via a new React-based Admin UI.
+*   Centralized configuration with `settings_config.yaml`.
+*   Image generation, voice interaction, PWA, multilingual support.
+
+**Tech Stack (Summary):**
+*   Backend: Python (FastAPI)
+*   Frontends: Svelte (maintenance), React/Vite/AntD (new Admin & App UIs)
+
+**Development & Installation (Summary):**
+*   Refer to specific sections above for Docker (recommended) and manual/local development setup for the backend and React frontends.
+*   The `settings_config.yaml` file is central to backend configuration.
+*   The new React Admin UI (`bor_admin_frontend`) and React App UI (`bor_app_frontend`) have their own development workflows (typically `npm install && npm run dev`).
+
+</details>
+
+---
+
+BoR 基于 Timothy Jaeryang Baek 最初创建的软件。让我们一起让BoR更加出色！ 💪
+(BoR is based on software originally created by Timothy Jaeryang Baek. Let's make BoR even more amazing together!)

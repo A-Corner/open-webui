@@ -1,5 +1,6 @@
 // bor_app_frontend/src/types/chat.ts
 // 中文注释：定义聊天相关的TypeScript接口
+import type { RetrievedSource } from './rag'; // 导入RAG来源类型
 
 /**
  * 聊天消息发送者类型
@@ -19,14 +20,7 @@ export interface ChatMessage {
   timestamp: number; // 消息发送的时间戳
   isLoading?: boolean; // 是否正在加载 (例如，等待AI回复时)
   error?: string; // 如果消息发送失败或AI处理出错，则包含错误信息
-  // 根据需要可以添加更多字段，例如：
-  // retrieved_sources?: Array<{ // RAG检索到的来源
-  //   title: string;
-  //   text: string;
-  //   source_url?: string;
-  //   document_id?: string;
-  //   distance?: number;
-  // }>;
+  retrieved_sources?: RetrievedSource[]; // RAG检索到的来源 (正式添加)
   // model?: string; // 使用的模型名称
 }
 
@@ -59,6 +53,7 @@ export interface ChatCompletionRequestBody {
 export interface ChatCompletionResponseMessage {
   role: ChatMessageSender; // Should be 'assistant'
   content: string;
+  retrieved_sources?: RetrievedSource[]; // RAG来源 (用于非流式响应)
   // model?: string;
   // usage?: any;
 }
@@ -72,11 +67,12 @@ export interface ChatStreamChunk {
   // For Ollama-like streams:
   model?: string;
   created_at?: string;
-  message?: {
-    role?: ChatMessageSender; // Should be 'assistant'
+  message?: { // Ollama's main message object in stream
+    role?: ChatMessageSender;
     content?: string;
   };
-  done?: boolean; // Ollama uses this to signify end of current completion part or whole stream.
+  done?: boolean;
+  retrieved_sources?: RetrievedSource[]; // RAG来源 (可能在Ollama流的最后done:true的块中)
 
   // For OpenAI-like streams:
   id?: string;
@@ -85,12 +81,18 @@ export interface ChatStreamChunk {
   choices?: Array<{
     delta?: {
       content?: string;
-      role?: ChatMessageSender; // Should be 'assistant'
+      role?: ChatMessageSender;
+      // OpenAI might send sources or tool calls here in future, not typically in delta.content for sources
     };
     finish_reason?: string | null;
     index?: number;
   }>;
+  // OpenAI might send a separate final chunk with metadata including sources,
+  // or sources might be part of a specific message type if using assistant APIs.
+  // For simplicity now, let's assume it could also come with the final 'done' type signal if it's a simple chat completion stream.
 
   // General error field
   error?: string;
 }
+
+// import type { RetrievedSource } from './rag'; // Moved to top

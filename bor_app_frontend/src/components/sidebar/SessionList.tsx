@@ -30,11 +30,25 @@ const SessionList: React.FC = () => {
   };
 
   if (isLoadingSessions && sessions.length === 0) {
-    return <div style={{ textAlign: 'center', padding: '20px' }}><Spin tip="Loading chats..." /></div>;
+    // Changed tip to Chinese
+    return <div style={{ textAlign: 'center', padding: '20px' }}><Spin tip="加载会话中..." /></div>;
   }
 
   if (errorSessions) {
-    return <Alert message="Error loading chat sessions" description={errorSessions} type="error" showIcon style={{ margin: '10px' }}/>;
+    return (
+      <Alert
+        message="加载会话失败"
+        description={errorSessions}
+        type="error"
+        showIcon
+        style={{ margin: '10px' }}
+        action={
+          <Button size="small" type="primary" onClick={fetchSessions} loading={isLoadingSessions}>
+            重试
+          </Button>
+        }
+      />
+    );
   }
 
   // TODO: Implement search/filter for sessions if needed
@@ -62,12 +76,13 @@ const SessionList: React.FC = () => {
           block
           loading={isLoadingSessions} // Or a specific isCreatingSession state from store
         >
-          New Chat
+          新建聊天
         </Button>
       </div>
       <div style={{ flexGrow: 1, overflowY: 'auto' }}>
         {filteredSessions.length === 0 && !isLoadingSessions ? (
-          <Empty description="No chats yet. Start a new one!" style={{ marginTop: '20px'}} />
+          // Changed description to Chinese
+          <Empty description="暂无会话，开始新的聊天吧！" style={{ marginTop: '20px'}} />
         ) : (
           filteredSessions.map(session => (
             <SessionItem

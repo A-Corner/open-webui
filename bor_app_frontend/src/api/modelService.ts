@@ -22,8 +22,8 @@ export const getSelectableChatModels = async (): Promise<ChatModelResponse[]> =>
       name: model.name || `模型 ${model.id}`, // Provide a default name if missing
     }));
   } catch (error: any) {
-    console.error('获取可选聊天模型列表错误:', error);
-    // Throw a new error or return a default/empty list depending on error handling strategy
-    throw new Error(error.response?.data?.detail || '获取可选聊天模型失败');
+    console.error('获取可选聊天模型列表错误:', error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '获取可选聊天模型失败';
+    throw new Error(message);
   }
 };

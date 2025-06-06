@@ -3,7 +3,8 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import type { ChatMessage, ChatMessageSender, ChatOptions } from '../types/chat';
 import type { ChatModelResponse } from '../types/models';
-import { sendChatMessageStream, editChatMessage as apiEditMessage, deleteChatMessage as apiDeleteMessage } from '../api/chatService'; // Adjusted imports
+import type { RetrievedSource } from '../types/rag'; // Import RetrievedSource
+import { sendChatMessageStream, editChatMessage as apiEditMessage, deleteChatMessage as apiDeleteMessage } from '../api/chatService';
 import { getMessagesAPI } from '../api/sessionService';
 import { getSelectableChatModels as apiGetModels } from '../api/modelService';
 import { useSessionStore } from './sessionStore'; // To update session-specific settings
@@ -153,8 +154,8 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       userInput,
       {
         onChunk: (chunkContent) => get().updateLastMessageChunk(assistantMessageId, chunkContent, false),
-        onComplete: () => {
-          get().updateLastMessageChunk(assistantMessageId, '', true);
+        onComplete: (finalSources) => { // finalSources is new from chatService
+          get().updateLastMessageChunk(assistantMessageId, '', true, finalSources); // Pass sources
           set({ isSending: false, abortController: null });
           // After a message is sent, the session's updatedAt changes.
           // Fetching sessions can update the order in the sidebar.
@@ -170,11 +171,17 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     set({ abortController: controller });
   },
 
-  updateLastMessageChunk: (messageId, contentChunk, isDone = false) => {
+  updateLastMessageChunk: (messageId, contentChunk, isDone = false, sources?: RetrievedSource[]) => { // Added sources param
     set(state => ({
       messages: state.messages.map(msg =>
         msg.id === messageId
-          ? { ...msg, content: msg.content + contentChunk, isLoading: !isDone, timestamp: Date.now() }
+          ? {
+              ...msg,
+              content: msg.content + contentChunk,
+              isLoading: !isDone,
+              timestamp: Date.now(),
+              retrieved_sources: isDone ? sources : msg.retrieved_sources, // Add sources when done
+            }
           : msg
       ),
     }));

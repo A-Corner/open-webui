@@ -4,8 +4,9 @@ import type {
   ChatOptions,
   ChatCompletionRequestBody,
   ChatCompletionResponseMessage,
-  ChatStreamChunk, // For parsing stream
-} from '../types/chat'; // From the new types file
+  ChatStreamChunk,
+} from '../types/chat';
+import type { RetrievedSource } from '../types/rag'; // Import RetrievedSource
 
 // Base URL for chat related APIs - assumes v1 for now as per plan for app frontend
 const CHAT_API_BASE_URL_V1 = '/api/v1/chats';
@@ -49,11 +50,12 @@ export const sendChatMessage = async (
       content: assistantMsgData.content,
       timestamp: Date.now(),
       isLoading: false,
+      retrieved_sources: assistantMsgData.retrieved_sources, // Add sources here
     };
   } catch (error: any) {
-    console.error('Chat API request error (non-streaming):', error);
-    const detail = error.response?.data?.detail || error.message || 'Failed to send message.';
-    throw new Error(detail);
+    console.error('Chat API request error (non-streaming):', error.original || error);
+    const message = (error as any).friendlyMessage || error.response?.data?.detail || error.message || '发送消息失败。';
+    throw new Error(message);
   }
 };
 
@@ -70,9 +72,9 @@ export const sendChatMessageStream = (
   userInput: string,
   callbacks: {
     onChunk: (contentDelta: string) => void;
-    onComplete: () => void;
+    onComplete: (finalSources?: RetrievedSource[]) => void; // Modified to accept sources
     onError: (error: Error) => void;
-    onStreamOpen?: () => void; // Optional: Called when stream connection is established
+    onStreamOpen?: () => void;
   },
   options?: ChatOptions,
 ): AbortController => {
@@ -131,22 +133,24 @@ export const sendChatMessageStream = (
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
     let buffer = '';
+    let accumulatedSources: RetrievedSource[] | undefined = undefined;
 
     const processText = async ({ done, value }: ReadableStreamReadResult<Uint8Array>): Promise<void> => {
       if (done) {
         // Process any remaining buffer content
         if (buffer.trim()) {
             try {
-                // Attempt to parse if it's a complete JSON object, otherwise might be partial
-                // This simplified parser might not handle all edge cases of abruptly ended streams.
                 const parsedChunk: ChatStreamChunk = JSON.parse(buffer.trim());
                 const contentDelta = parsedChunk.message?.content || parsedChunk.choices?.[0]?.delta?.content;
                 if (contentDelta) callbacks.onChunk(contentDelta);
+                if (parsedChunk.retrieved_sources) { // Accumulate sources from final chunk if any
+                    accumulatedSources = [...(accumulatedSources || []), ...parsedChunk.retrieved_sources];
+                }
             } catch (e) {
-                // console.warn('Remaining buffer not valid JSON, or stream ended mid-object:', buffer, e);
+                // console.warn('Remaining buffer not valid JSON on stream end:', buffer, e);
             }
         }
-        callbacks.onComplete();
+        callbacks.onComplete(accumulatedSources);
         return;
       }
 
@@ -160,18 +164,18 @@ export const sendChatMessageStream = (
 
         if (line.startsWith('data: ')) {
           const jsonData = line.substring(5).trim();
-          if (jsonData === '[DONE]') { // OpenAI specific end signal
-            callbacks.onComplete();
-            return; // Stop processing
+          if (jsonData === '[DONE]') {
+            callbacks.onComplete(accumulatedSources); // Pass any accumulated sources
+            return;
           }
           if (jsonData) {
             try {
               const parsedChunk: ChatStreamChunk = JSON.parse(jsonData);
 
               let contentDelta = "";
-              if (parsedChunk.message?.content) { // Ollama
+              if (parsedChunk.message?.content) {
                 contentDelta = parsedChunk.message.content;
-              } else if (parsedChunk.choices && parsedChunk.choices[0]?.delta?.content) { // OpenAI
+              } else if (parsedChunk.choices && parsedChunk.choices[0]?.delta?.content) {
                 contentDelta = parsedChunk.choices[0].delta.content;
               }
 
@@ -179,11 +183,15 @@ export const sendChatMessageStream = (
                 callbacks.onChunk(contentDelta);
               }
 
+              // Check for sources in any chunk, especially if backend sends them mid-stream or with final content chunk
+              if (parsedChunk.retrieved_sources) {
+                accumulatedSources = [...(accumulatedSources || []), ...parsedChunk.retrieved_sources];
+              }
+
               if (parsedChunk.done || (parsedChunk.choices && parsedChunk.choices[0]?.finish_reason)) {
-                callbacks.onComplete();
-                // If there's a possibility of more data in 'value' after a 'done' or 'finish_reason' chunk,
-                // this 'return' might be too early. However, typical SSE parsers process one event at a time.
-                // For robust SSE, one would fully parse each "event" delimited by double newlines.
+                // If sources are expected only in this final signaling chunk, ensure they are captured.
+                // The current logic captures them if they are part of this `parsedChunk`.
+                callbacks.onComplete(accumulatedSources);
                 return;
               }
             } catch (e) {
@@ -191,9 +199,6 @@ export const sendChatMessageStream = (
             }
           }
         }
-        // If line is empty, it might be the end of an SSE event (double newline)
-        // This basic parser doesn't explicitly handle event boundaries via double newlines,
-        // but relies on each `data:` line being a self-contained JSON.
       }
       return reader.read().then(processText);
     };
@@ -202,11 +207,11 @@ export const sendChatMessageStream = (
   .catch(error => {
     if (error.name === 'AbortError') {
       console.log('Chat stream request aborted by user.');
-      callbacks.onComplete();
+      callbacks.onComplete(accumulatedSources); // Pass any sources accumulated before abort
       return;
     }
-    console.error('Chat stream API error:', error);
-    callbacks.onError(new Error(error.message || 'Failed to send streaming message.'));
+    console.error('Chat stream API error:', error.original || error);
+    callbacks.onError(new Error( (error as any).friendlyMessage || error.message || '流式消息发送失败。'));
   });
 
   return controller;
@@ -242,8 +247,9 @@ export const editChatMessage = async (
     // Assuming the backend returns the updated ChatMessage object
     return response.data;
   } catch (error: any) {
-    console.error(`编辑消息 ${messageId} 错误:`, error);
-    throw new Error(error.response?.data?.detail || '编辑消息失败');
+    console.error(`编辑消息 ${messageId} 错误:`, error.original || error);
+    const message = (error as any).friendlyMessage || error.response?.data?.detail || '编辑消息失败';
+    throw new Error(message);
   }
 };
 
@@ -257,7 +263,8 @@ export const deleteChatMessage = async (
       `${CHAT_API_BASE_URL_V1}/${chatId}/messages/${messageId}`
     );
   } catch (error: any) {
-    console.error(`删除消息 ${messageId} 错误:`, error);
-    throw new Error(error.response?.data?.detail || '删除消息失败');
+    console.error(`删除消息 ${messageId} 错误:`, error.original || error);
+    const message = (error as any).friendlyMessage || error.response?.data?.detail || '删除消息失败';
+    throw new Error(message);
   }
 };

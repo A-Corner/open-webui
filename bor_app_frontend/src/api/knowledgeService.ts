@@ -20,7 +20,8 @@ export const getSelectableKnowledgeSources = async (): Promise<SelectableKnowled
       description: item.description,
     }));
   } catch (error: any) {
-    console.error('获取可选知识源列表错误:', error);
-    throw new Error(error.response?.data?.detail || '获取可选知识源失败');
+    console.error('获取可选知识源列表错误:', error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '获取可选知识源失败';
+    throw new Error(message);
   }
 };

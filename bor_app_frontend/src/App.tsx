@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, Spin, theme as antdTheme } from 'antd';
-import { appRouter } from './router'; // Ensure router is exported as appRouter
+import { appRouter } from './router';
 import { useUserSessionStore } from './store/userSessionStore';
 import { useSessionStore } from './store/sessionStore';
-import { useUserSettingsStore } from './store/userSettingsStore'; // Import user settings store
+import { useUserSettingsStore } from './store/userSettingsStore';
+import ErrorBoundary from './components/common/ErrorBoundary'; // Import ErrorBoundary
 import './index.css';
 
 const App: React.FC = () => {
@@ -88,7 +89,9 @@ const App: React.FC = () => {
         // token: { colorPrimary: '#00b96b' } // Example: customize primary color
       }}
     >
-      <RouterProvider router={appRouter} />
+      <ErrorBoundary>
+        <RouterProvider router={appRouter} />
+      </ErrorBoundary>
     </ConfigProvider>
   );
 };

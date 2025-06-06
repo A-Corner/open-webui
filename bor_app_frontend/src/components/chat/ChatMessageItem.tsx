@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Avatar, Card, Spin, Typography, Alert, Button, Tooltip, Popconfirm, message as AntdMessage } from 'antd'; // Added Button, Tooltip, Popconfirm, message
-import { UserOutlined, RobotOutlined, WarningOutlined, CopyOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'; // Added new icons
+import { Avatar, Card, Spin, Typography, Alert, Button, Tooltip, Popconfirm, message as AntdMessage, Collapse, List, Tag, Space } from 'antd'; // Added Collapse, List, Tag, Space
+import { UserOutlined, RobotOutlined, WarningOutlined, CopyOutlined, EditOutlined, DeleteOutlined, PaperClipOutlined, LinkOutlined } from '@ant-design/icons'; // Added PaperClipOutlined, LinkOutlined
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { useChatStore } from '../../store/chatStore'; // For edit/delete actions
-import { useUserSessionStore } from '../../store/userSessionStore'; // To check if message is from current user
-import RehypeHighlight from 'rehype-highlight'; // If you installed and want syntax highlighting for code blocks
-// import 'highlight.js/styles/github-dark.css'; // Example: Choose a highlight.js theme if using rehype-highlight
-
-import type { ChatMessage } from '../../types/chat'; // Adjust path
+import { useChatStore } from '../../store/chatStore';
+import { useUserSessionStore } from '../../store/userSessionStore';
+import RehypeHighlight from 'rehype-highlight';
+// import 'highlight.js/styles/github-dark.css';
+import type { ChatMessage } from '../../types/chat';
+import type { RetrievedSource } from '../../types/rag'; // Import RetrievedSource type
 
 const { Text, Paragraph } = Typography;
 
@@ -17,9 +17,9 @@ interface ChatMessageItemProps {
 }
 
 const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => {
-  const { id: messageId, sender, content, timestamp, isLoading, error } = message;
+  const { id: messageId, sender, content, timestamp, isLoading, error, retrieved_sources } = message; // Destructure retrieved_sources
   const { startEditMessage, removeMessage } = useChatStore();
-  const currentUser = useUserSessionStore(state => state.user); // Assuming user object has an 'id' or similar to compare sender if needed
+  const currentUser = useUserSessionStore(state => state.user);
 
   const [isEditingThisMessage, setIsEditingThisMessage] = useState(false); // Local state for inline editing UI if implemented here
   const [editedContent, setEditedContent] = useState(content);
@@ -140,12 +140,77 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => {
             <Alert message={error} type="error" showIcon style={{marginTop: '5px', fontSize: '0.85em', padding: '4px 8px'}}/>
         )}
 
+        {/* Display Retrieved Sources */}
+        {sender === 'assistant' && retrieved_sources && retrieved_sources.length > 0 && (
+          <div style={{ marginTop: '10px', marginBottom: '5px' }}>
+            <Collapse size="small" ghost>
+              <Collapse.Panel
+                header={
+                  <Typography.Text type="secondary" style={{ fontSize: '0.85em' }}>
+                    <PaperClipOutlined style={{ marginRight: '5px' }} />
+                    引用来源 ({retrieved_sources.length} 条)
+                  </Typography.Text>
+                }
+                key="sources"
+              >
+                <List
+                  itemLayout="vertical"
+                  dataSource={retrieved_sources}
+                  renderItem={(source: RetrievedSource, index: number) => (
+                    <List.Item
+                      key={source.id || `source-${index}`}
+                      style={{ paddingTop: '8px', paddingBottom: '8px' }}
+                    >
+                      <List.Item.Meta
+                        title={
+                          <Space size="small" wrap>
+                            <Tag color="blue">来源 {index + 1}</Tag>
+                            {source.name ? (
+                              <Typography.Text strong style={{ fontSize: '0.9em' }}>
+                                {source.name}
+                              </Typography.Text>
+                            ) : (
+                              <Typography.Text type="secondary" italic style={{ fontSize: '0.9em' }}>未知来源</Typography.Text>
+                            )}
+                            {source.url && (
+                              <Tooltip title={`打开链接: ${source.url}`}>
+                                <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.9em', marginLeft: '5px' }}>
+                                  <LinkOutlined />
+                                </a>
+                              </Tooltip>
+                            )}
+                          </Space>
+                        }
+                        description={
+                          source.content_snippet && (
+                            <Typography.Paragraph
+                              ellipsis={{ rows: 3, expandable: true, symbol: '更多' }}
+                              type="secondary"
+                              style={{ fontSize: '0.85em', whiteSpace: 'pre-wrap', margin: 0 }}
+                            >
+                              {source.content_snippet}
+                            </Typography.Paragraph>
+                          )
+                        }
+                      />
+                      {typeof source.score === 'number' && ( // Optional: display score
+                        <div style={{ fontSize: '0.8em', color: '#888', marginTop: '4px' }}>
+                          相关性得分: {source.score.toFixed(4)}
+                        </div>
+                      )}
+                    </List.Item>
+                  )}
+                  size="small"
+                />
+              </Collapse.Panel>
+            </Collapse>
+          </div>
+        )}
+
         <Text type="secondary" style={{ fontSize: '0.7em', alignSelf: 'flex-end', marginTop: '5px', display: 'block', textAlign: isUser ? 'right': 'left' }}>
           {timeString}
         </Text>
       </Card>
-      {/* Hidden actions container for spacing, actions are absolutely positioned relative to card */}
-      {/* <div style={{width: 35}} />  */}
     </div>
   );
 };

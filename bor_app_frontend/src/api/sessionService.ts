@@ -29,8 +29,9 @@ export const getSessions = async (): Promise<Session[]> => {
     const response = await appAxiosInstance.get<RawSessionListItem[]>('/chats');
     return response.data.map(mapRawSessionToSession).sort((a, b) => b.updatedAt - a.updatedAt);
   } catch (error: any) {
-    console.error('获取会话列表错误:', error);
-    throw new Error(error.response?.data?.detail || '获取会话列表失败');
+    console.error('获取会话列表错误:', error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '获取会话列表失败';
+    throw new Error(message);
   }
 };
 
@@ -41,8 +42,9 @@ export const createNewSessionAPI = async (title?: string): Promise<Session> => {
     const response = await appAxiosInstance.post<RawSessionListItem>('/chats', payload);
     return mapRawSessionToSession(response.data);
   } catch (error: any) {
-    console.error('创建新会话错误:', error);
-    throw new Error(error.response?.data?.detail || '创建新会话失败');
+    console.error('创建新会话错误:', error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '创建新会话失败';
+    throw new Error(message);
   }
 };
 
@@ -50,8 +52,9 @@ export const deleteSessionAPI = async (sessionId: string): Promise<void> => {
   try {
     await appAxiosInstance.delete(`/chats/${sessionId}`);
   } catch (error: any) {
-    console.error(`删除会话 ${sessionId} 错误:`, error);
-    throw new Error(error.response?.data?.detail || '删除会话失败');
+    console.error(`删除会话 ${sessionId} 错误:`, error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '删除会话失败';
+    throw new Error(message);
   }
 };
 
@@ -76,7 +79,8 @@ export const getMessagesAPI = async (sessionId: string): Promise<ChatMessage[]> 
         return messagesToMap.map(msg => mapRawMessageToChatMessage(msg))
                           .sort((a,b) => a.timestamp - b.timestamp);
     } catch (error: any) {
-        console.error(`获取会话 ${sessionId} 的消息错误:`, error);
-        throw new Error(error.response?.data?.detail || '获取消息失败');
+        console.error(`获取会话 ${sessionId} 的消息错误:`, error.original || error);
+        const message = error.friendlyMessage || error.response?.data?.detail || '获取消息失败';
+        throw new Error(message);
     }
 };

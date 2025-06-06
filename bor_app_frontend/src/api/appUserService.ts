@@ -12,11 +12,12 @@ import type { User } from '../types/user'; // Assuming User type is in types/use
  */
 export const getMyProfile = async (): Promise<User> => {
   try {
-    const response = await appAxiosInstance.get<User>('/users/me'); // Standard endpoint for current user
+    const response = await appAxiosInstance.get<User>('/users/me');
     return response.data;
   } catch (error: any) {
-    console.error('获取用户信息错误:', error);
-    throw new Error(error.response?.data?.detail || '获取用户信息失败');
+    console.error('获取用户信息错误:', error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '获取用户信息失败';
+    throw new Error(message);
   }
 };
 
@@ -30,8 +31,9 @@ export const updateMyProfile = async (data: Partial<Pick<User, 'name' | 'email'>
     const response = await appAxiosInstance.put<User>('/users/me', data);
     return response.data;
   } catch (error: any) {
-    console.error('更新用户信息错误:', error);
-    throw new Error(error.response?.data?.detail || '更新用户信息失败');
+    console.error('更新用户信息错误:', error.original || error);
+    const message = error.friendlyMessage || error.response?.data?.detail || '更新用户信息失败';
+    throw new Error(message);
   }
 };
 
@@ -53,7 +55,8 @@ export const uploadMyAvatar = async (file: File): Promise<{ profile_image_url: s
         });
         return response.data;
     } catch (error: any) {
-        console.error('上传头像错误:', error);
-        throw new Error(error.response?.data?.detail || '上传头像失败');
+        console.error('上传头像错误:', error.original || error);
+        const message = error.friendlyMessage || error.response?.data?.detail || '上传头像失败';
+        throw new Error(message);
     }
 };
